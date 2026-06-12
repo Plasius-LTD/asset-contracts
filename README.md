@@ -12,6 +12,15 @@ npm install @plasius/asset-contracts
 
 This package is part of the unified AI asset pipeline package family. It is scaffolded from the @plasius/schema package template and owns the asset contracts boundary described in the Plasius asset pipeline design.
 
+The exported surface covers:
+
+- asset id and version validation helpers
+- asset job metadata contracts
+- manifest and file descriptor contracts
+- screenshot plan definitions
+- review findings and review report contracts
+- immutable promotion record contracts
+
 ## Feature Flag
 
 - `asset.pipeline.unified-ai-assets.enabled`

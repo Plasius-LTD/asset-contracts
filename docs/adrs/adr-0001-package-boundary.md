@@ -28,7 +28,7 @@ The unified AI asset pipeline needs stable package boundaries so local seed asse
 
 ## Decision
 
-Keep asset identity, manifests, screenshot plans, review reports, and promotion metadata in one runtime-agnostic contracts package.
+Keep asset identity, job metadata, manifests, screenshot plans, review reports, and promotion metadata in one runtime-agnostic contracts package.
 
 ---
 

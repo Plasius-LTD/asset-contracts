@@ -1,13 +1,20 @@
 import { describe, expect, it } from "vitest";
 import {
+  ASSET_PIPELINE_MCP_CAPABILITY,
   ASSET_SCREENSHOT_KINDS,
+  ASSET_PROMOTION_OUTCOMES,
+  UNIFIED_ASSET_PIPELINE_FEATURE_FLAG_ID,
   assertAssetId,
   assertAssetVersion,
   createAssetFileDescriptor,
+  createAssetJobRecord,
   createAssetManifest,
+  createAssetPromotionRecord,
   createAssetReviewReport,
   createStandardScreenshotPlan,
   isAssetId,
+  isAssetJobState,
+  isAssetPromotionOutcome,
   isAssetSourceAdapter,
   normalizeAssetId,
 } from "../src/index.js";
@@ -23,6 +30,9 @@ describe("asset contracts", () => {
     expect(() => assertAssetVersion("")).toThrow(/version/);
     expect(isAssetSourceAdapter("ai-generate")).toBe(true);
     expect(isAssetSourceAdapter("manual-upload")).toBe(false);
+    expect(isAssetJobState("processing")).toBe(true);
+    expect(isAssetPromotionOutcome("promoted")).toBe(true);
+    expect(isAssetPromotionOutcome("deleted")).toBe(false);
   });
 
   it("creates immutable asset manifests", () => {
@@ -88,6 +98,30 @@ describe("asset contracts", () => {
     expect(plan[0]?.width).toBe(1600);
   });
 
+  it("creates immutable asset job records", () => {
+    const job = createAssetJobRecord({
+      jobId: "assetjob.eames-chair.intake",
+      assetId: "eames-lounge-chair-ottoman",
+      version: "2026.05.27-abc123",
+      state: "processing",
+      sourceAdapter: "local-import",
+      requestedAt: "2026-05-27T00:00:00.000Z",
+      requestedBy: "system:seed-import",
+      featureFlagId: UNIFIED_ASSET_PIPELINE_FEATURE_FLAG_ID,
+      requiredCapability: ASSET_PIPELINE_MCP_CAPABILITY,
+    });
+
+    expect(Object.isFrozen(job)).toBe(true);
+    expect(job.state).toBe("processing");
+    expect(job.featureFlagId).toBe(UNIFIED_ASSET_PIPELINE_FEATURE_FLAG_ID);
+    expect(() =>
+      createAssetJobRecord({
+        ...job,
+        state: "manual-review" as "processing",
+      })
+    ).toThrow(/state/);
+  });
+
   it("creates immutable review reports", () => {
     const report = createAssetReviewReport({
       assetId: "eames-lounge-chair-ottoman",
@@ -116,5 +150,218 @@ describe("asset contracts", () => {
         findings: [],
       })
     ).toThrow(/kebab-case/);
+  });
+
+  it("creates immutable promotion records with manifest and review evidence", () => {
+    const manifest = createAssetManifest({
+      assetId: "eames-lounge-chair-ottoman",
+      version: "2026.05.27-abc123",
+      entrypoint: "runtime/model.glb",
+      sourceAdapter: "local-import",
+      createdAt: "2026-05-27T00:00:00.000Z",
+      files: [
+        createAssetFileDescriptor({
+          path: "runtime/model.glb",
+          byteLength: 256,
+          sha256: "b".repeat(64),
+          contentType: "model/gltf-binary",
+          role: "model",
+        }),
+      ],
+    });
+    const reviewReport = createAssetReviewReport({
+      assetId: "eames-lounge-chair-ottoman",
+      version: "2026.05.27-abc123",
+      passed: true,
+      reviewedAt: "2026-05-27T00:00:00.000Z",
+      findings: [],
+    });
+
+    const record = createAssetPromotionRecord({
+      promotionId: "promotion.eames-chair.v20260527",
+      jobId: "assetjob.eames-chair.intake",
+      assetId: "eames-lounge-chair-ottoman",
+      version: "2026.05.27-abc123",
+      sourceAdapter: "local-import",
+      outcome: ASSET_PROMOTION_OUTCOMES[0],
+      manifest,
+      reviewReport,
+      approvedBy: "reviewer:art-direction",
+      approvedAt: "2026-05-27T00:05:00.000Z",
+      promotedAt: "2026-05-27T00:06:00.000Z",
+      runtimeChannel: "runtime-public",
+      runtimeManifestUri: "https://cdn.plasius.co.uk/assets/eames-lounge-chair-ottoman/2026.05.27-abc123/manifest.json",
+    });
+
+    expect(Object.isFrozen(record)).toBe(true);
+    expect(Object.isFrozen(record.manifest)).toBe(true);
+    expect(Object.isFrozen(record.reviewReport)).toBe(true);
+    expect(record.outcome).toBe("promoted");
+    expect(() =>
+      createAssetPromotionRecord({
+        ...record,
+        version: "2026.05.27-other",
+      })
+    ).toThrow(/manifest must match/);
+  });
+
+  it("rejects invalid asset job and promotion record inputs", () => {
+    const manifest = createAssetManifest({
+      assetId: "eames-lounge-chair-ottoman",
+      version: "2026.05.27-abc123",
+      entrypoint: "runtime/model.glb",
+      sourceAdapter: "local-import",
+      createdAt: "2026-05-27T00:00:00.000Z",
+      files: [
+        createAssetFileDescriptor({
+          path: "runtime/model.glb",
+          byteLength: 256,
+          sha256: "c".repeat(64),
+          contentType: "model/gltf-binary",
+          role: "model",
+        }),
+      ],
+    });
+    const reviewReport = createAssetReviewReport({
+      assetId: "eames-lounge-chair-ottoman",
+      version: "2026.05.27-abc123",
+      passed: true,
+      reviewedAt: "2026-05-27T00:00:00.000Z",
+      findings: [],
+    });
+
+    expect(() =>
+      createAssetJobRecord({
+        jobId: "bad job id",
+        assetId: "eames-lounge-chair-ottoman",
+        version: "2026.05.27-abc123",
+        state: "processing",
+        sourceAdapter: "local-import",
+        requestedAt: "2026-05-27T00:00:00.000Z",
+        requestedBy: "system:seed-import",
+        featureFlagId: UNIFIED_ASSET_PIPELINE_FEATURE_FLAG_ID,
+      })
+    ).toThrow(/job id/);
+
+    expect(() =>
+      createAssetJobRecord({
+        jobId: "assetjob.eames-chair.intake",
+        assetId: "eames-lounge-chair-ottoman",
+        version: "2026.05.27-abc123",
+        state: "processing",
+        sourceAdapter: "manual-upload" as "local-import",
+        requestedAt: "2026-05-27T00:00:00.000Z",
+        requestedBy: "system:seed-import",
+        featureFlagId: UNIFIED_ASSET_PIPELINE_FEATURE_FLAG_ID,
+      })
+    ).toThrow(/sourceAdapter/);
+
+    expect(() =>
+      createAssetJobRecord({
+        jobId: "assetjob.eames-chair.intake",
+        assetId: "eames-lounge-chair-ottoman",
+        version: "2026.05.27-abc123",
+        state: "processing",
+        sourceAdapter: "local-import",
+        requestedAt: "2026-05-27T00:00:00.000Z",
+        requestedBy: "",
+        featureFlagId: UNIFIED_ASSET_PIPELINE_FEATURE_FLAG_ID,
+      })
+    ).toThrow(/requestedBy/);
+
+    expect(() =>
+      createAssetPromotionRecord({
+        promotionId: "promotion.eames-chair.v20260527",
+        jobId: "assetjob.eames-chair.intake",
+        assetId: "eames-lounge-chair-ottoman",
+        version: "2026.05.27-abc123",
+        sourceAdapter: "manual-upload" as "local-import",
+        outcome: "promoted",
+        manifest,
+        reviewReport,
+        approvedBy: "reviewer:art-direction",
+        approvedAt: "2026-05-27T00:05:00.000Z",
+        promotedAt: "2026-05-27T00:06:00.000Z",
+        runtimeChannel: "runtime-public",
+        runtimeManifestUri: "https://cdn.plasius.co.uk/assets/eames-lounge-chair-ottoman/2026.05.27-abc123/manifest.json",
+      })
+    ).toThrow(/sourceAdapter/);
+
+    expect(() =>
+      createAssetPromotionRecord({
+        promotionId: "promotion.eames-chair.v20260527",
+        jobId: "assetjob.eames-chair.intake",
+        assetId: "eames-lounge-chair-ottoman",
+        version: "2026.05.27-abc123",
+        sourceAdapter: "local-import",
+        outcome: "deleted" as "promoted",
+        manifest,
+        reviewReport,
+        approvedBy: "reviewer:art-direction",
+        approvedAt: "2026-05-27T00:05:00.000Z",
+        promotedAt: "2026-05-27T00:06:00.000Z",
+        runtimeChannel: "runtime-public",
+        runtimeManifestUri: "https://cdn.plasius.co.uk/assets/eames-lounge-chair-ottoman/2026.05.27-abc123/manifest.json",
+      })
+    ).toThrow(/outcome/);
+
+    expect(() =>
+      createAssetPromotionRecord({
+        promotionId: "promotion.eames-chair.v20260527",
+        jobId: "assetjob.eames-chair.intake",
+        assetId: "eames-lounge-chair-ottoman",
+        version: "2026.05.27-abc123",
+        sourceAdapter: "local-import",
+        outcome: "promoted",
+        manifest,
+        reviewReport: {
+          ...reviewReport,
+          version: "2026.05.27-other",
+        },
+        approvedBy: "reviewer:art-direction",
+        approvedAt: "2026-05-27T00:05:00.000Z",
+        promotedAt: "2026-05-27T00:06:00.000Z",
+        runtimeChannel: "runtime-public",
+        runtimeManifestUri: "https://cdn.plasius.co.uk/assets/eames-lounge-chair-ottoman/2026.05.27-abc123/manifest.json",
+      })
+    ).toThrow(/reviewReport must match/);
+
+    expect(() =>
+      createAssetPromotionRecord({
+        promotionId: "promotion.eames-chair.v20260527",
+        jobId: "assetjob.eames-chair.intake",
+        assetId: "eames-lounge-chair-ottoman",
+        version: "2026.05.27-abc123",
+        sourceAdapter: "local-import",
+        outcome: "rolled-back",
+        manifest,
+        reviewReport,
+        approvedBy: "",
+        approvedAt: "2026-05-27T00:05:00.000Z",
+        promotedAt: "2026-05-27T00:06:00.000Z",
+        runtimeChannel: "runtime-public",
+        runtimeManifestUri: "https://cdn.plasius.co.uk/assets/eames-lounge-chair-ottoman/2026.05.27-abc123/manifest.json",
+        rollbackOfVersion: "bad version value with spaces",
+      })
+    ).toThrow(/approvedBy/);
+
+    expect(() =>
+      createAssetPromotionRecord({
+        promotionId: "promotion.eames-chair.v20260527",
+        jobId: "assetjob.eames-chair.intake",
+        assetId: "eames-lounge-chair-ottoman",
+        version: "2026.05.27-abc123",
+        sourceAdapter: "local-import",
+        outcome: "rolled-back",
+        manifest,
+        reviewReport,
+        approvedBy: "reviewer:art-direction",
+        approvedAt: "2026-05-27T00:05:00.000Z",
+        promotedAt: "2026-05-27T00:06:00.000Z",
+        runtimeChannel: "runtime-public",
+        runtimeManifestUri: "https://cdn.plasius.co.uk/assets/eames-lounge-chair-ottoman/2026.05.27-abc123/manifest.json",
+        rollbackOfVersion: "bad version value with spaces",
+      })
+    ).toThrow(/Asset version/);
   });
 });
