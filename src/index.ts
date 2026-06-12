@@ -49,10 +49,16 @@ export const ASSET_REVIEW_SEVERITIES = Object.freeze([
   "blocking",
 ] as const);
 
+export const ASSET_PROMOTION_OUTCOMES = Object.freeze([
+  "promoted",
+  "rolled-back",
+] as const);
+
 export type AssetJobState = typeof ASSET_JOB_STATES[number];
 export type AssetSourceAdapter = typeof ASSET_SOURCE_ADAPTERS[number];
 export type AssetScreenshotKind = typeof ASSET_SCREENSHOT_KINDS[number];
 export type AssetReviewSeverity = typeof ASSET_REVIEW_SEVERITIES[number];
+export type AssetPromotionOutcome = typeof ASSET_PROMOTION_OUTCOMES[number];
 
 export interface AssetFileDescriptor {
   readonly path: string;
@@ -94,9 +100,39 @@ export interface AssetReviewReport {
   readonly reviewedAt: string;
 }
 
+export interface AssetJobRecord {
+  readonly jobId: string;
+  readonly assetId: string;
+  readonly version: string;
+  readonly state: AssetJobState;
+  readonly sourceAdapter: AssetSourceAdapter;
+  readonly requestedAt: string;
+  readonly requestedBy: string;
+  readonly featureFlagId: string;
+  readonly requiredCapability?: string;
+}
+
+export interface AssetPromotionRecord {
+  readonly promotionId: string;
+  readonly jobId: string;
+  readonly assetId: string;
+  readonly version: string;
+  readonly sourceAdapter: AssetSourceAdapter;
+  readonly outcome: AssetPromotionOutcome;
+  readonly manifest: AssetManifest;
+  readonly reviewReport: AssetReviewReport;
+  readonly approvedBy: string;
+  readonly approvedAt: string;
+  readonly promotedAt: string;
+  readonly runtimeChannel: string;
+  readonly runtimeManifestUri: string;
+  readonly rollbackOfVersion?: string;
+}
+
 const ASSET_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 const VERSION_PATTERN = /^[0-9A-Za-z][0-9A-Za-z._-]{0,127}$/u;
 const SHA256_PATTERN = /^[a-f0-9]{64}$/u;
+const TOKEN_PATTERN = /^[0-9A-Za-z][0-9A-Za-z._:-]{0,127}$/u;
 
 export function isAssetId(value: unknown): value is string {
   return typeof value === "string" && ASSET_ID_PATTERN.test(value);
@@ -122,6 +158,14 @@ export function assertAssetVersion(value: unknown): string {
 
 export function isAssetSourceAdapter(value: unknown): value is AssetSourceAdapter {
   return ASSET_SOURCE_ADAPTERS.includes(value as AssetSourceAdapter);
+}
+
+export function isAssetJobState(value: unknown): value is AssetJobState {
+  return ASSET_JOB_STATES.includes(value as AssetJobState);
+}
+
+export function isAssetPromotionOutcome(value: unknown): value is AssetPromotionOutcome {
+  return ASSET_PROMOTION_OUTCOMES.includes(value as AssetPromotionOutcome);
 }
 
 export function createAssetFileDescriptor(input: AssetFileDescriptor): AssetFileDescriptor {
@@ -175,4 +219,75 @@ export function createAssetReviewReport(input: AssetReviewReport): AssetReviewRe
     ...input,
     findings: Object.freeze(input.findings.map((finding) => Object.freeze({ ...finding }))),
   });
+}
+
+export function createAssetJobRecord(input: AssetJobRecord): AssetJobRecord {
+  assertToken(input.jobId, "Asset job id");
+  assertAssetId(input.assetId);
+  assertAssetVersion(input.version);
+  if (!isAssetJobState(input.state)) {
+    throw new Error("Asset job state is not supported.");
+  }
+  if (!isAssetSourceAdapter(input.sourceAdapter)) {
+    throw new Error("Asset job sourceAdapter is not supported.");
+  }
+  assertRequiredString(input.requestedAt, "Asset job requestedAt");
+  assertRequiredString(input.requestedBy, "Asset job requestedBy");
+  assertToken(input.featureFlagId, "Asset job featureFlagId");
+  if (input.requiredCapability !== undefined) {
+    assertToken(input.requiredCapability, "Asset job requiredCapability");
+  }
+  return Object.freeze({ ...input });
+}
+
+export function createAssetPromotionRecord(input: AssetPromotionRecord): AssetPromotionRecord {
+  assertToken(input.promotionId, "Asset promotion id");
+  assertToken(input.jobId, "Asset promotion job id");
+  assertAssetId(input.assetId);
+  assertAssetVersion(input.version);
+  if (!isAssetSourceAdapter(input.sourceAdapter)) {
+    throw new Error("Asset promotion sourceAdapter is not supported.");
+  }
+  if (!isAssetPromotionOutcome(input.outcome)) {
+    throw new Error("Asset promotion outcome is not supported.");
+  }
+
+  const manifest = createAssetManifest(input.manifest);
+  if (manifest.assetId !== input.assetId || manifest.version !== input.version) {
+    throw new Error("Asset promotion manifest must match the promoted asset id and version.");
+  }
+
+  const reviewReport = createAssetReviewReport(input.reviewReport);
+  if (reviewReport.assetId !== input.assetId || reviewReport.version !== input.version) {
+    throw new Error("Asset promotion reviewReport must match the promoted asset id and version.");
+  }
+
+  assertRequiredString(input.approvedBy, "Asset promotion approvedBy");
+  assertRequiredString(input.approvedAt, "Asset promotion approvedAt");
+  assertRequiredString(input.promotedAt, "Asset promotion promotedAt");
+  assertRequiredString(input.runtimeChannel, "Asset promotion runtimeChannel");
+  assertRequiredString(input.runtimeManifestUri, "Asset promotion runtimeManifestUri");
+  if (input.rollbackOfVersion !== undefined) {
+    assertAssetVersion(input.rollbackOfVersion);
+  }
+
+  return Object.freeze({
+    ...input,
+    manifest,
+    reviewReport,
+  });
+}
+
+function assertToken(value: unknown, fieldName: string): string {
+  if (typeof value !== "string" || !TOKEN_PATTERN.test(value)) {
+    throw new Error(`${fieldName} must be a non-empty token up to 128 characters.`);
+  }
+  return value;
+}
+
+function assertRequiredString(value: unknown, fieldName: string): string {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new Error(`${fieldName} must be a non-empty string.`);
+  }
+  return value;
 }
