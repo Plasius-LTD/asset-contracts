@@ -48,6 +48,10 @@ npm run pack:check
 - ADRs: [docs/adrs](./docs/adrs)
 - CLA and legal docs: [legal](./legal)
 
+## Support
+
+`Plasius-LTD/asset-contracts` keeps GitHub Issues disabled. File package bugs and support requests in [`Plasius-LTD/plasius-ltd-site`](https://github.com/Plasius-LTD/plasius-ltd-site/issues) and include `asset-contracts` in the title or body so package work can be routed correctly.
+
 ## License
 
 Apache-2.0
