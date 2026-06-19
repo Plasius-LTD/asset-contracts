@@ -5,3 +5,4 @@
 - Scaffolded @plasius/asset-contracts for the unified AI asset pipeline.
 - Added canonical asset job and promotion record contracts to complete the initial public asset lifecycle surface.
 - Pointed package support metadata at the active `plasius-ltd-site` issue tracker.
+- Corrected repo-local guidance so the scaffold documentation identifies the asset-contracts package accurately.
