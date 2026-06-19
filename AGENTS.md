@@ -155,7 +155,7 @@
 The following repo- or directory-specific guidance from the previous local `AGENTS.md` remains active where it does not conflict with the curated governance above or companion files.
 
 ### Local Notes
-This repo is `@plasius/schema`, a TypeScript schema definition and validation library.
+This repo is `@plasius/asset-contracts`, a TypeScript contracts library for Plasius asset jobs, manifests, screenshot plans, reviews, and promotion records.
 
 ### Setup
 - Use Node.js 22 (see `.nvmrc`) and npm.
