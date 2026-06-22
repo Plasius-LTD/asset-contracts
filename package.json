@@ -1,6 +1,6 @@
 {
   "name": "@plasius/asset-contracts",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Canonical contracts for Plasius asset jobs, manifests, screenshot plans, reviews, and promotion records.",
   "type": "module",
   "sideEffects": false,
