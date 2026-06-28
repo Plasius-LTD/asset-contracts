@@ -6,7 +6,7 @@
   - (placeholder)
 
 - **Changed**
-  - (placeholder)
+  - Refreshed `@typescript-eslint/eslint-plugin` to `8.62.0` to align the linting baseline with the current latest-stable template packages.
 
 - **Fixed**
   - (placeholder)

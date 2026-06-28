@@ -62,11 +62,10 @@
     "url": "https://github.com/Plasius-LTD/plasius-ltd-site/issues"
   },
   "homepage": "https://github.com/Plasius-LTD/asset-contracts#readme",
-  "dependencies": {},
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^25.7.0",
-    "@typescript-eslint/eslint-plugin": "^8.59.3",
+    "@typescript-eslint/eslint-plugin": "^8.62.0",
     "@typescript-eslint/parser": "^8.59.3",
     "@vitest/coverage-v8": "^4.1.6",
     "eslint": "^10.3.0",
