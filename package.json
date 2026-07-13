@@ -1,6 +1,6 @@
 {
   "name": "@plasius/asset-contracts",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Canonical contracts for Plasius asset jobs, model resolution, immutable WGSL shader assets, reviews, and promotion records.",
   "type": "module",
   "sideEffects": false,

@@ -3,6 +3,20 @@
 ## Unreleased
 
 - **Added**
+  - (placeholder)
+
+- **Changed**
+  - (placeholder)
+
+- **Fixed**
+  - (placeholder)
+
+- **Security**
+  - (placeholder)
+
+## [0.3.1] - 2026-07-13
+
+- **Added**
   - Added the canonical `assertImmutableAssetVersion` validator for immutable
     catalog identities while retaining the legacy `assertAssetVersion` helper
     for intentionally mutable workflow labels.
@@ -119,3 +133,4 @@
 [0.1.5]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.1.5
 [0.2.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.2.0
 [0.3.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.3.0
+[0.3.1]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.3.1
