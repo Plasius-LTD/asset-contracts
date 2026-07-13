@@ -3,16 +3,29 @@
 ## Unreleased
 
 - **Added**
-  - (placeholder)
+  - Added versioned model request, assessment, candidate, rights/provenance,
+    processing manifest, resolution, immutable asset reference, and
+    forward-compatible generator-port/result contracts with a disabled Phase 1
+    implementation for Story #1484 and Task #1485.
+  - Added deterministic render, collision/fidelity policy, independent hard-gate,
+    confirmation, staged-child closure, and atomic promotion receipt evidence.
 
 - **Changed**
-  - (placeholder)
+  - Refreshed compatible test, lint, build, and type-definition dependencies as
+    part of the Epic dependency review; TypeScript 7 remains deferred as a
+    separate major compatibility upgrade.
 
 - **Fixed**
   - (placeholder)
 
 - **Security**
-  - (placeholder)
+  - Bound assurance, rights, conversion, render, validation, confirmation, and
+    promotion evidence to the exact request, source package, resolution,
+    candidate, processing manifest, and staged closure.
+  - Added fail-closed public request ceilings, deterministic hard-constraint
+    evaluation for pre-candidate profiles and at candidate/resolution boundaries,
+    resolution-bound confirmation chronology, canonical MCP resource namespaces,
+    and query-free public-page references.
 
 ## [0.1.5] - 2026-06-28
 
