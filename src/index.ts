@@ -23,9 +23,17 @@ import type {
   ShaderVersionRef,
   Sha256Hex,
 } from "@plasius/gpu-shader";
+import {
+  assertAssetVersion,
+  assertImmutableAssetVersion,
+} from "./asset-version.js";
 
 export const ASSET_CONTRACTS_PACKAGE = "@plasius/asset-contracts";
 
+export {
+  assertAssetVersion,
+  assertImmutableAssetVersion,
+};
 export * from "./model-resolution.js";
 export {
   GPU_SHADER_STORE_FEATURE_FLAG,
@@ -285,7 +293,6 @@ export interface AssetPromotionRecord<TManifest extends AssetManifest = AssetMan
 }
 
 const ASSET_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
-const VERSION_PATTERN = /^[0-9A-Za-z][0-9A-Za-z._-]{0,127}$/u;
 const SHA256_PATTERN = /^[a-f0-9]{64}$/u;
 const TOKEN_PATTERN = /^[0-9A-Za-z][0-9A-Za-z._:-]{0,127}$/u;
 const ASSET_MANIFEST_KEYS = Object.freeze([
@@ -309,13 +316,6 @@ export function normalizeAssetId(value: string): string {
 export function assertAssetId(value: unknown): string {
   if (!isAssetId(value)) {
     throw new Error("Asset id must use lowercase kebab-case letters and numbers.");
-  }
-  return value;
-}
-
-export function assertAssetVersion(value: unknown): string {
-  if (typeof value !== "string" || !VERSION_PATTERN.test(value)) {
-    throw new Error("Asset version must be a non-empty token up to 128 characters.");
   }
   return value;
 }
@@ -419,6 +419,7 @@ export function createModelAssetManifest(input: ModelAssetManifestInput): ModelA
     providedSemantics: input.providedSemantics,
     defaultStyleProfile: input.defaultStyleProfile ?? null,
   });
+  assertModelGpuCompatibilityVersions(descriptor);
   return Object.freeze({
     ...base,
     gpuInterface: descriptor.gpuInterface,
@@ -445,6 +446,7 @@ export function createGpuInterfaceAssetManifest(
   assertAllowedFileRoles(base, ["gpu-interface-manifest"]);
   assertRoleCount(base, "gpu-interface-manifest", 1);
   const gpuInterfaceManifest = parseGpuInterfaceManifest(input.gpuInterfaceManifest);
+  assertImmutableAssetVersion(gpuInterfaceManifest.interfaceVersion);
   assertDomainIdentity(
     base,
     gpuInterfaceManifest.interfaceId,
@@ -472,6 +474,7 @@ export function createShaderAssetManifest(input: ShaderAssetManifest): ShaderAss
   assertAllowedFileRoles(base, ["shader-manifest", "wgsl"]);
   assertRoleCount(base, "shader-manifest", 1);
   const shaderManifest = parseShaderVersionManifest(input.shaderManifest);
+  assertShaderManifestVersions(shaderManifest);
   assertDomainIdentity(base, shaderManifest.shaderId, shaderManifest.version, "Shader");
   assertShaderModuleFiles(base.files, shaderManifest);
   return Object.freeze({ ...base, shaderManifest });
@@ -494,6 +497,7 @@ export function createShaderStyleProfileAssetManifest(
   assertAllowedFileRoles(base, ["shader-style-profile-manifest"]);
   assertRoleCount(base, "shader-style-profile-manifest", 1);
   const styleProfileManifest = parseShaderStyleProfileManifest(input.styleProfileManifest);
+  assertStyleProfileManifestVersions(styleProfileManifest);
   assertDomainIdentity(base, styleProfileManifest.profileId, styleProfileManifest.version, "Style profile");
   return Object.freeze({ ...base, styleProfileManifest });
 }
@@ -563,7 +567,7 @@ export function createShaderValidationEvidenceRef(
     uri: assertImmutableHttpsUri(value.uri, "Shader validation evidence uri"),
     sha256: assertSha256(value.sha256, "Shader validation evidence sha256"),
     matrixId: assertGpuToken(value.matrixId, "Shader validation evidence matrixId"),
-    matrixVersion: assertGpuToken(value.matrixVersion, "Shader validation evidence matrixVersion"),
+    matrixVersion: assertImmutableAssetVersion(value.matrixVersion),
     matrixSha256: assertSha256(value.matrixSha256, "Shader validation evidence matrixSha256"),
     attestationRef: Object.freeze({
       uri: assertImmutableHttpsUri(attestation.uri, "Shader validation evidence attestation uri"),
@@ -589,9 +593,10 @@ export function createShaderValidationEvidenceRef(
 
 /** Constructs an exact interface reference after immutable manifest bytes exist. */
 export async function createGpuInterfaceRef(input: GpuInterfaceRefInput): Promise<GpuInterfaceRef> {
+  assertImmutableAssetVersion(input.manifest.interfaceVersion);
   const manifest = parseGpuInterfaceManifest(input.manifest);
   assertAssetId(manifest.interfaceId);
-  assertAssetVersion(manifest.interfaceVersion);
+  assertImmutableAssetVersion(manifest.interfaceVersion);
   const manifestSha256 = await bindDomainManifestBytes(input.manifestBytes, manifest, "GPU interface");
   return Object.freeze({
     interfaceId: manifest.interfaceId,
@@ -605,9 +610,10 @@ export async function createGpuInterfaceRef(input: GpuInterfaceRefInput): Promis
 
 /** Constructs an exact shader-version reference after immutable manifest bytes exist. */
 export async function createShaderVersionRef(input: ShaderVersionRefInput): Promise<ShaderVersionRef> {
+  assertImmutableAssetVersion(input.manifest.version);
   const manifest = parseShaderVersionManifest(input.manifest);
   assertAssetId(manifest.shaderId);
-  assertAssetVersion(manifest.version);
+  assertShaderManifestVersions(manifest);
   const manifestSha256 = await bindDomainManifestBytes(input.manifestBytes, manifest, "Shader");
   return Object.freeze({
     shaderId: manifest.shaderId,
@@ -621,9 +627,10 @@ export async function createShaderVersionRef(input: ShaderVersionRefInput): Prom
 export async function createShaderStyleProfileRef(
   input: ShaderStyleProfileRefInput,
 ): Promise<ShaderStyleProfileRef> {
+  assertImmutableAssetVersion(input.manifest.version);
   const manifest = parseShaderStyleProfileManifest(input.manifest);
   assertAssetId(manifest.profileId);
-  assertAssetVersion(manifest.version);
+  assertStyleProfileManifestVersions(manifest);
   const manifestSha256 = await bindDomainManifestBytes(input.manifestBytes, manifest, "Style profile");
   return Object.freeze({
     profileId: manifest.profileId,
@@ -775,10 +782,13 @@ function createValidatedPromotionRecord<TManifest extends AssetManifest>(
   input: AssetPromotionRecord<TManifest>,
   manifest: TManifest,
 ): AssetPromotionRecord<TManifest> {
+  const assertPromotionVersion = manifest.assetKind === undefined
+    ? assertAssetVersion
+    : assertImmutableAssetVersion;
   assertToken(input.promotionId, "Asset promotion id");
   assertToken(input.jobId, "Asset promotion job id");
   assertAssetId(input.assetId);
-  assertAssetVersion(input.version);
+  assertPromotionVersion(input.version);
   if (!isAssetSourceAdapter(input.sourceAdapter)) {
     throw new Error("Asset promotion sourceAdapter is not supported.");
   }
@@ -801,7 +811,7 @@ function createValidatedPromotionRecord<TManifest extends AssetManifest>(
   assertRequiredString(input.runtimeChannel, "Asset promotion runtimeChannel");
   assertRequiredString(input.runtimeManifestUri, "Asset promotion runtimeManifestUri");
   if (input.rollbackOfVersion !== undefined) {
-    assertAssetVersion(input.rollbackOfVersion);
+    assertPromotionVersion(input.rollbackOfVersion);
   }
 
   return Object.freeze({
@@ -820,6 +830,7 @@ function createTypedAssetBase<K extends AssetKind>(
   if (input.assetKind !== assetKind) {
     throw new Error(`Asset manifest assetKind must be ${assetKind}.`);
   }
+  assertImmutableAssetVersion(input.version);
   const base = createBaseAssetManifest({
     assetKind,
     assetId: input.assetId,
@@ -855,6 +866,47 @@ function assertDomainIdentity(
 ): void {
   if (!isAssetId(domainId) || domainId !== manifest.assetId || domainVersion !== manifest.version) {
     throw new Error(`${label} identity and version must match the lifecycle asset identity and version.`);
+  }
+}
+
+function assertGpuInterfaceRefVersion(ref: GpuInterfaceRef): void {
+  assertImmutableAssetVersion(ref.interfaceVersion);
+}
+
+function assertShaderEvidenceVersion(ref: ShaderValidationEvidenceRef): void {
+  assertImmutableAssetVersion(ref.matrixVersion);
+}
+
+function assertShaderManifestVersions(manifest: ShaderVersionManifest): void {
+  assertImmutableAssetVersion(manifest.version);
+  assertGpuInterfaceRefVersion(manifest.gpuInterface);
+  for (const compatibleInterface of manifest.compatibleModelInterfaces) {
+    assertImmutableAssetVersion(compatibleInterface.interfaceVersion);
+  }
+  assertShaderEvidenceVersion(manifest.validationEvidence);
+  for (const scopedEvidence of manifest.additionalValidationEvidence) {
+    assertShaderEvidenceVersion(scopedEvidence.evidence);
+  }
+}
+
+function assertStyleProfileManifestVersions(manifest: ShaderStyleProfileManifest): void {
+  assertImmutableAssetVersion(manifest.version);
+  for (const role of manifest.roles) {
+    assertImmutableAssetVersion(role.shader.version);
+  }
+  for (const compatibleInterface of manifest.compatibleModelInterfaces) {
+    assertImmutableAssetVersion(compatibleInterface.interfaceVersion);
+  }
+  for (const scope of manifest.requiredValidationScopes) {
+    assertImmutableAssetVersion(scope.matrixVersion);
+  }
+}
+
+function assertModelGpuCompatibilityVersions(descriptor: ModelGpuCompatibilityDescriptor): void {
+  assertImmutableAssetVersion(descriptor.version);
+  assertGpuInterfaceRefVersion(descriptor.gpuInterface);
+  if (descriptor.defaultStyleProfile !== null) {
+    assertImmutableAssetVersion(descriptor.defaultStyleProfile.version);
   }
 }
 

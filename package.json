@@ -99,6 +99,6 @@
     "minimatch": "^10.2.1"
   },
   "dependencies": {
-    "@plasius/gpu-shader": "^0.1.0"
+    "@plasius/gpu-shader": "^0.1.1"
   }
 }
