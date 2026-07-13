@@ -6,6 +6,7 @@ import {
   UNIFIED_ASSET_PIPELINE_FEATURE_FLAG_ID,
   assertAssetId,
   assertAssetVersion,
+  assertImmutableAssetVersion,
   createAssetFileDescriptor,
   createAssetJobRecord,
   createAssetManifest,
@@ -33,6 +34,51 @@ describe("asset contracts", () => {
     expect(isAssetJobState("processing")).toBe(true);
     expect(isAssetPromotionOutcome("promoted")).toBe(true);
     expect(isAssetPromotionOutcome("deleted")).toBe(false);
+  });
+
+  it("distinguishes legacy workflow labels from immutable exact versions", () => {
+    expect(assertAssetVersion("latest")).toBe("latest");
+    expect(assertAssetVersion("1.x")).toBe("1.x");
+    expect(assertImmutableAssetVersion("1")).toBe("1");
+    expect(assertImmutableAssetVersion("v1")).toBe("v1");
+    expect(assertImmutableAssetVersion("2026.07.13-a1")).toBe("2026.07.13-a1");
+    expect(assertImmutableAssetVersion("build-x")).toBe("build-x");
+
+    for (const version of [
+      "latest",
+      "CURRENT",
+      "Stable",
+      "preview",
+      "DEFAULT",
+      "production",
+      "Canary",
+      "next",
+      "HEAD",
+      "main",
+      "1.x",
+      "1.x.preview",
+      "vX",
+      "v2.X",
+      "1.*",
+      "^1.2.3",
+      ">=1.2.3",
+      "1.2.3 || 2.0.0",
+      "https://assets.example.invalid/version/1.0.0",
+      "mcp://models/catalog/version",
+    ]) {
+      expect(() => assertImmutableAssetVersion(version)).toThrow(
+        "Immutable asset version must be an exact token up to 128 characters; mutable aliases, ranges, wildcards, and URLs are not allowed.",
+      );
+    }
+
+    let error: unknown;
+    try {
+      assertImmutableAssetVersion("x".repeat(10_000));
+    } catch (cause) {
+      error = cause;
+    }
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).message.length).toBeLessThan(160);
   });
 
   it("creates immutable asset manifests", () => {

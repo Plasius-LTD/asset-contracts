@@ -3,16 +3,25 @@
 ## Unreleased
 
 - **Added**
-  - (placeholder)
+  - Added the canonical `assertImmutableAssetVersion` validator for immutable
+    catalog identities while retaining the legacy `assertAssetVersion` helper
+    for intentionally mutable workflow labels.
 
 - **Changed**
-  - (placeholder)
+  - Applied exact-version validation to model, GPU-interface, shader,
+    style-profile, validation-evidence, post-storage reference, immutable
+    rollback, and model-resolution `ModelAssetRef` contracts.
+  - Aligned the GPU contract dependency to `@plasius/gpu-shader` 0.1.1 so
+    validation uses the canonical stable-WebGPU matrix policy artifact.
 
 - **Fixed**
-  - (placeholder)
+  - Fixed immutable shader, profile, interface, evidence, model, and rollback
+    references accepting moving catalog labels such as `latest`.
 
 - **Security**
-  - (placeholder)
+  - Rejected case-insensitive mutable aliases, ranges, wildcards, and
+    URL-shaped values at immutable GPU asset boundaries with a stable bounded
+    error that never includes untrusted input.
 
 ## [0.3.0] - 2026-07-13
 

@@ -867,6 +867,15 @@ describe("model resolution contracts", () => {
   });
 
   it("rejects unsafe model references, signed public pages, unknown fields, and invalid states", () => {
+    for (const version of ["latest", "CURRENT", "1.x", "https://assets.example.invalid/v1"]) {
+      expect(() => createModelAssetRef({
+        assetId: "oak-table",
+        version,
+        kind: "leaf",
+        contentHash: hash("a"),
+        runtimeManifestUri: `mcp://models/catalog/oak-table/versions/${encodeURIComponent(version)}/manifest`,
+      })).toThrow(/Immutable asset version must be an exact token/u);
+    }
     expect(() =>
       createModelAssetRef({
         assetId: "oak-table",

@@ -15,7 +15,8 @@ This package is part of the unified AI asset pipeline package family. It is scaf
 
 The exported surface covers:
 
-- asset id and version validation helpers
+- asset id, legacy workflow-version, and immutable exact-version validation
+  helpers
 - asset job metadata contracts
 - manifest and file descriptor contracts
 - screenshot plan definitions
@@ -83,6 +84,8 @@ The typed factories:
 - require a role-specific entrypoint for every typed asset
 - require the domain id to use the same lowercase kebab-case lifecycle id and
   exact version, avoiding lossy identity normalization
+- reject mutable aliases, ranges, wildcards, and URL-shaped values anywhere an
+  immutable GPU asset or nested exact reference carries a version
 - strictly parse reflected interface, shader-version, style-profile, and model
   compatibility values through `@plasius/gpu-shader`
 - require each shader module id and immutable URI path to map one-to-one to a
@@ -123,6 +126,25 @@ Rollout and user-visible style discovery use the canonical exports:
 
 - feature flag: `asset.pipeline.shader-store.enabled`
 - capability: `gpu.shader.style.select`
+
+### Immutable exact versions
+
+Use `assertImmutableAssetVersion` for catalog identities, immutable Blob roots,
+and exact references. It accepts existing exact identifiers such as `1`, `v1`,
+`1.2.0`, and `2026.07.13-a1`, while rejecting the case-insensitive aliases
+`latest`, `current`, `stable`, `preview`, `default`, `production`, `canary`,
+`next`, `head`, and `main`. SemVer-style `x` wildcards, other range/wildcard
+syntax, and URL-shaped values also fail with one constant, bounded error that
+does not echo caller input.
+
+`assertAssetVersion` remains available for legacy workflow records where a
+mutable label is intentional. Typed model, interface, shader, style-profile,
+and validation-evidence manifests always use the exact validator, as do nested
+interface/profile/shader pins, matrix-policy versions, immutable rollback
+targets, post-storage ref factories, and model-resolution `ModelAssetRef`
+values. The shader-store feature flag controls whether hosts enter this asset
+lifecycle; disabling the flag does not weaken validation for data that reaches
+the contract boundary.
 
 ## Model Resolution Contracts
 

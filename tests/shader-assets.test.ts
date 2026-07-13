@@ -331,6 +331,236 @@ describe("GPU shader asset contracts", () => {
     })).toThrow(/complete file bytes/u);
   });
 
+  it("rejects mutable versions across every immutable GPU asset envelope", () => {
+    const immutableVersionError = /Immutable asset version must be an exact token/u;
+
+    expect(() => createGpuInterfaceAssetManifest({
+      assetKind: "gpu-interface",
+      assetId: "model-interface",
+      version: "latest",
+      entrypoint: "gpu-interface.json",
+      files: [assetFile("gpu-interface.json", "gpu-interface-manifest")],
+      sourceAdapter: "local-import",
+      createdAt: CREATED_AT,
+      gpuInterfaceManifest: {
+        ...minimalGpuInterface(),
+        interfaceVersion: "latest",
+      },
+    })).toThrow(immutableVersionError);
+
+    expect(() => createModelAssetManifest({
+      assetKind: "model",
+      assetId: "model-fixture",
+      version: "1.0.0",
+      entrypoint: "model.glb",
+      files: [assetFile("model.glb", "model")],
+      sourceAdapter: "local-import",
+      createdAt: CREATED_AT,
+      gpuInterface: minimalInterfaceRef(),
+      modelAbiHash: H0,
+      providedSemantics: [],
+      defaultStyleProfile: {
+        ...minimalProfileRef(),
+        version: "main",
+      },
+    })).toThrow(immutableVersionError);
+
+    expect(() => createShaderAssetManifest({
+      assetKind: "shader",
+      assetId: "shader-realistic",
+      version: "CURRENT",
+      entrypoint: "shader.json",
+      files: [
+        assetFile("shader.json", "shader-manifest"),
+        assetFile("main.wgsl", "wgsl", H0, 1, ASSET_WGSL_CONTENT_TYPE),
+      ],
+      sourceAdapter: "local-import",
+      createdAt: CREATED_AT,
+      shaderManifest: {
+        ...minimalShaderManifest(),
+        version: "CURRENT",
+      },
+    })).toThrow(immutableVersionError);
+
+    expect(() => createShaderAssetManifest({
+      assetKind: "shader",
+      assetId: "shader-realistic",
+      version: "1.0.0",
+      entrypoint: "shader.json",
+      files: [
+        assetFile("shader.json", "shader-manifest"),
+        assetFile("main.wgsl", "wgsl", H0, 1, ASSET_WGSL_CONTENT_TYPE),
+      ],
+      sourceAdapter: "local-import",
+      createdAt: CREATED_AT,
+      shaderManifest: {
+        ...minimalShaderManifest(),
+        compatibleModelInterfaces: [{
+          ...minimalShaderManifest().compatibleModelInterfaces[0]!,
+          interfaceVersion: "current",
+        }],
+      },
+    })).toThrow(immutableVersionError);
+
+    expect(() => createShaderStyleProfileAssetManifest({
+      assetKind: "shader-style-profile",
+      assetId: "style-realistic",
+      version: "stable",
+      entrypoint: "profile.json",
+      files: [assetFile("profile.json", "shader-style-profile-manifest")],
+      sourceAdapter: "local-import",
+      createdAt: CREATED_AT,
+      styleProfileManifest: {
+        ...minimalProfileManifest(),
+        version: "stable",
+      },
+    })).toThrow(immutableVersionError);
+
+    expect(() => createShaderStyleProfileAssetManifest({
+      assetKind: "shader-style-profile",
+      assetId: "style-realistic",
+      version: "1.0.0",
+      entrypoint: "profile.json",
+      files: [assetFile("profile.json", "shader-style-profile-manifest")],
+      sourceAdapter: "local-import",
+      createdAt: CREATED_AT,
+      styleProfileManifest: {
+        ...minimalProfileManifest(),
+        compatibleModelInterfaces: [{
+          ...minimalProfileManifest().compatibleModelInterfaces[0]!,
+          interfaceVersion: "preview",
+        }],
+      },
+    })).toThrow(immutableVersionError);
+
+    expect(() => createShaderValidationEvidenceAssetManifest({
+      assetKind: "shader-validation-evidence",
+      assetId: "qualification-test",
+      version: "production",
+      entrypoint: "qualification-test.json",
+      files: [
+        assetFile("qualification-test.json", "shader-validation-evidence", H2),
+        assetFile("qualification-test.attestation.json", "shader-validation-attestation", H3),
+      ],
+      sourceAdapter: "local-import",
+      createdAt: CREATED_AT,
+      validationEvidence: minimalEvidenceRef(),
+    })).toThrow(immutableVersionError);
+
+    expect(() => createModelAssetManifest({
+      assetKind: "model",
+      assetId: "model-fixture",
+      version: "canary",
+      entrypoint: "model.glb",
+      files: [assetFile("model.glb", "model")],
+      sourceAdapter: "local-import",
+      createdAt: CREATED_AT,
+      gpuInterface: minimalInterfaceRef(),
+      modelAbiHash: H0,
+      providedSemantics: [],
+    })).toThrow(immutableVersionError);
+  });
+
+  it("rejects mutable versions in nested exact GPU references", () => {
+    const immutableVersionError = /Immutable asset version must be an exact token/u;
+
+    expect(() => createModelAssetManifest({
+      assetKind: "model",
+      assetId: "model-fixture",
+      version: "1.0.0",
+      entrypoint: "model.glb",
+      files: [assetFile("model.glb", "model")],
+      sourceAdapter: "local-import",
+      createdAt: CREATED_AT,
+      gpuInterface: {
+        ...minimalInterfaceRef(),
+        interfaceVersion: "preview",
+      },
+      modelAbiHash: H0,
+      providedSemantics: [],
+      defaultStyleProfile: {
+        ...minimalProfileRef(),
+        version: "main",
+      },
+    })).toThrow(immutableVersionError);
+
+    expect(() => createShaderAssetManifest({
+      assetKind: "shader",
+      assetId: "shader-realistic",
+      version: "1.0.0",
+      entrypoint: "shader.json",
+      files: [
+        assetFile("shader.json", "shader-manifest"),
+        assetFile("main.wgsl", "wgsl", H0, 1, ASSET_WGSL_CONTENT_TYPE),
+      ],
+      sourceAdapter: "local-import",
+      createdAt: CREATED_AT,
+      shaderManifest: {
+        ...minimalShaderManifest(),
+        gpuInterface: {
+          ...minimalInterfaceRef(),
+          interfaceVersion: "default",
+        },
+      },
+    })).toThrow(immutableVersionError);
+
+    expect(() => createShaderStyleProfileAssetManifest({
+      assetKind: "shader-style-profile",
+      assetId: "style-realistic",
+      version: "1.0.0",
+      entrypoint: "profile.json",
+      files: [assetFile("profile.json", "shader-style-profile-manifest")],
+      sourceAdapter: "local-import",
+      createdAt: CREATED_AT,
+      styleProfileManifest: {
+        ...minimalProfileManifest(),
+        roles: [{
+          ...minimalProfileManifest().roles[0]!,
+          shader: {
+            ...minimalProfileManifest().roles[0]!.shader,
+            version: "next",
+          },
+        }],
+      },
+    })).toThrow(immutableVersionError);
+
+    expect(() => createShaderValidationEvidenceRef({
+      ...minimalEvidenceRef(),
+      matrixVersion: "head",
+    })).toThrow(immutableVersionError);
+  });
+
+  it("rejects mutable versions while constructing exact post-storage refs", async () => {
+    const interfaceManifest = {
+      ...minimalGpuInterface(),
+      interfaceVersion: "latest",
+    };
+    const shaderManifest = {
+      ...minimalShaderManifest(),
+      version: "current",
+    };
+    const profileManifest = {
+      ...minimalProfileManifest(),
+      version: "stable",
+    };
+
+    await expect(createGpuInterfaceRef({
+      manifest: interfaceManifest,
+      manifestBytes: new TextEncoder().encode(canonicalizeGpuContract(interfaceManifest)),
+      manifestUri: "https://assets.example.invalid/interfaces/model-interface/latest/gpu-interface.json",
+    })).rejects.toThrow(/Immutable asset version must be an exact token/u);
+    await expect(createShaderVersionRef({
+      manifest: shaderManifest,
+      manifestBytes: new TextEncoder().encode(canonicalizeGpuContract(shaderManifest)),
+      manifestUri: "https://assets.example.invalid/shaders/shader-realistic/current/shader.json",
+    })).rejects.toThrow(/Immutable asset version must be an exact token/u);
+    await expect(createShaderStyleProfileRef({
+      manifest: profileManifest,
+      manifestBytes: new TextEncoder().encode(canonicalizeGpuContract(profileManifest)),
+      manifestUri: "https://assets.example.invalid/profiles/style-realistic/stable/profile.json",
+    })).rejects.toThrow(/Immutable asset version must be an exact token/u);
+  });
+
   it("binds complete asset bytes before typed promotion and creates exact refs", async () => {
     const moduleBytes = new TextEncoder().encode("@compute @workgroup_size(1) fn main() {}");
     const moduleSha256 = await computeSha256(moduleBytes);
@@ -423,6 +653,10 @@ describe("GPU shader asset contracts", () => {
       runtimeManifestUri: shaderRef.manifestUri,
     }, files);
     expect(promotion.manifest.shaderManifest.shaderId).toBe("shader-realistic");
+    await expect(createGpuAssetPromotionRecord({
+      ...promotion,
+      rollbackOfVersion: "latest",
+    }, files)).rejects.toThrow(/Immutable asset version must be an exact token/u);
     await expect(createGpuAssetPromotionRecord({
       ...promotion,
       runtimeManifestUri: "not-even-a-uri",

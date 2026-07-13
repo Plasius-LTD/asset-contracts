@@ -1,3 +1,5 @@
+import { assertImmutableAssetVersion } from "./asset-version.js";
+
 /** Version identifier carried by every top-level model-resolution contract. */
 export const MODEL_RESOLUTION_CONTRACT_VERSION = "2026-07-12.v1" as const;
 
@@ -1656,7 +1658,7 @@ export function createModelAssetRef(input: unknown): ModelAssetRef {
   ], "ModelAssetRef");
   assertContractVersion(record, "ModelAssetRef");
   const validatedAssetId = assetId(record.assetId, "ModelAssetRef.assetId");
-  const validatedVersion = assetVersion(record.version, "ModelAssetRef.version");
+  const validatedVersion = assertImmutableAssetVersion(record.version);
   const runtimeManifestUri = assertModelUri(record.runtimeManifestUri, "ModelAssetRef.runtimeManifestUri");
   const expectedManifestUri = `mcp://models/catalog/${validatedAssetId}/versions/${validatedVersion}/manifest`;
   if (runtimeManifestUri !== expectedManifestUri) {
