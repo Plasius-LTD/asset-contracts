@@ -1,4 +1,6 @@
 export const ASSET_CONTRACTS_PACKAGE = "@plasius/asset-contracts";
+
+export * from "./model-resolution.js";
 export const UNIFIED_ASSET_PIPELINE_FEATURE_FLAG_ID = "asset.pipeline.unified-ai-assets.enabled";
 export const ASSET_PIPELINE_MCP_CAPABILITY = "asset.pipeline.mcp.manage";
 export const ASSET_PIPELINE_REVIEW_CAPABILITY = "asset.pipeline.review.approve";

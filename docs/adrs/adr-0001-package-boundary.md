@@ -49,4 +49,4 @@ Keep asset identity, job metadata, manifests, screenshot plans, review reports, 
 
 ## Related Decisions
 
-- plasius-ltd-site ADR 0069: Use a Unified AI Asset Pipeline with Dedicated Asset Packages
+- plasius-ltd-site ADR 0084: Unified AI Asset Pipeline Package Boundaries and Promotion Controls
