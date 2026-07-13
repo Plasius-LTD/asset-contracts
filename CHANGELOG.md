@@ -3,6 +3,20 @@
 ## Unreleased
 
 - **Added**
+  - (placeholder)
+
+- **Changed**
+  - (placeholder)
+
+- **Fixed**
+  - (placeholder)
+
+- **Security**
+  - (placeholder)
+
+## [0.2.0] - 2026-07-13
+
+- **Added**
   - Added versioned model request, assessment, candidate, rights/provenance,
     processing manifest, resolution, immutable asset reference, and
     forward-compatible generator-port/result contracts with a disabled Phase 1
@@ -66,3 +80,4 @@
 [0.1.3]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.1.3
 [0.1.4]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.1.4
 [0.1.5]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.1.5
+[0.2.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.2.0
