@@ -3,16 +3,30 @@
 ## Unreleased
 
 - **Added**
-  - (placeholder)
+  - Added typed model, reflected GPU-interface, WGSL shader, rendering-style
+    profile, and shader-validation-evidence asset manifests and immutable
+    factories for Story #1027 and Task #15.
+  - Added GPU model ABI, provided-semantics, optional exact default-style,
+    shader module, stable-WebGPU matrix evidence, and attestation contracts by
+    reusing `@plasius/gpu-shader` as the canonical domain source.
+  - Added complete-file byte validation, typed GPU promotion, one-to-one WGSL
+    module-path binding, and post-storage exact interface/shader/profile refs.
 
 - **Changed**
-  - (placeholder)
+  - Kept legacy manifests source-compatible while making generic manifest and
+    promotion factories preserve specialized caller fields and manifest types.
+  - Added canonical GPU asset kinds, file roles, and WGSL/JSON content types.
 
 - **Fixed**
   - (placeholder)
 
 - **Security**
-  - (placeholder)
+  - Added fail-closed typed-envelope validation for undeclared fields, lifecycle
+    identity/version drift, ABI hash drift, WGSL digest/size/content-type drift,
+    unsupported matrix policies, credential-bearing artifact URIs, and missing
+    evidence attestations.
+  - Rejected absolute, scheme-bearing, traversing, duplicate, and non-POSIX Blob
+    paths; typed assets cannot bypass byte verification through legacy promotion.
 
 ## [0.2.0] - 2026-07-13
 

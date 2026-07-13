@@ -1,6 +1,7 @@
 # @plasius/asset-contracts
 
-Canonical contracts for Plasius asset jobs, manifests, screenshot plans, reviews, and promotion records.
+Canonical contracts for Plasius asset jobs, model resolution, immutable WebGPU
+shader assets, screenshot plans, reviews, and promotion records.
 
 ## Install
 
@@ -26,6 +27,102 @@ The exported surface covers:
 - immutable promoted `ModelAssetRef` values
 - canonical model processing, LOD, collision, assembly, converter, and fidelity evidence
 - asynchronous resolution records and the disabled Phase 1 generator port
+- typed model, reflected GPU-interface, WGSL shader, rendering-style profile,
+  and shader-validation-evidence asset manifests
+- model-facing GPU ABI references, semantics, and optional exact default-style
+  references
+- generic manifest inference plus byte-verified typed promotion that preserves
+  specialized manifest fields
+
+## WebGPU Shader Asset Contracts
+
+`@plasius/gpu-shader` owns reflection-derived GPU layouts, ABI hashes, exact
+shader and style-profile manifests, compatibility logic, and qualification
+evidence. This package adds those domain contracts to the existing immutable
+asset lifecycle without copying layout rules into sidecar metadata.
+
+```ts
+import {
+  ASSET_WGSL_CONTENT_TYPE,
+  createShaderAssetManifest,
+} from "@plasius/asset-contracts";
+
+const asset = createShaderAssetManifest({
+  assetKind: "shader",
+  assetId: "shader-cartoon",
+  version: "1.2.0",
+  entrypoint: "shader.json",
+  files: [
+    {
+      path: "shader.json",
+      byteLength: 2048,
+      sha256: shaderManifestSha256,
+      contentType: "application/json",
+      role: "shader-manifest",
+    },
+    {
+      path: "material.wgsl",
+      byteLength: materialWgsl.byteLength,
+      sha256: materialWgslSha256,
+      contentType: ASSET_WGSL_CONTENT_TYPE,
+      role: "wgsl",
+      moduleId: "material",
+    },
+  ],
+  sourceAdapter: "local-import",
+  createdAt: "2026-07-13T12:00:00.000Z",
+  shaderManifest,
+});
+```
+
+The typed factories:
+
+- keep the legacy `AssetManifest` source-compatible by making `assetKind`
+  optional only on that base contract; its generic factory remains kindless and
+  routes typed assets to specialized factories
+- require a role-specific entrypoint for every typed asset
+- require the domain id to use the same lowercase kebab-case lifecycle id and
+  exact version, avoiding lossy identity normalization
+- strictly parse reflected interface, shader-version, style-profile, and model
+  compatibility values through `@plasius/gpu-shader`
+- require each shader module id and immutable URI path to map one-to-one to a
+  unique relative WGSL Blob path with the declared digest, byte length, and
+  content type
+- require evidence references to use an accepted universal or additive WebGPU
+  matrix policy and include exact evidence and attestation file digests
+- reject undeclared typed-envelope fields, preventing manually supplied CPU/GPU
+  layouts from becoming a second source of truth
+
+`createModelAssetManifest` adds `gpuInterface`, `modelAbiHash`,
+`providedSemantics`, and `defaultStyleProfile` to a model version. A missing
+default profile normalizes to `null`; compatible style profiles remain separate
+catalog assets, so cartoon, anime, realistic, and future profiles can be added
+without republishing a model.
+
+The synchronous factories validate declarations and lifecycle relationships.
+`validateGpuAssetFiles` additionally requires the complete, exact file map,
+verifies every byte length and SHA-256 digest, requires canonical JSON, and
+binds interface/shader/profile entrypoint bytes to the nested domain manifest.
+`createGpuAssetPromotionRecord` performs that byte validation and binds the
+runtime URI to the validated entrypoint before producing a typed promotion
+record; the legacy synchronous promotion factory rejects typed assets. Exact
+`GpuInterfaceRef`, `ShaderVersionRef`, and `ShaderStyleProfileRef` values accept
+canonical manifest bytes, recompute their digest, and are constructed only
+after the immutable URI exists, avoiding self-referential manifests. Evidence
+byte validation also requires a passing status, the declared matrix identity,
+and complete non-empty result counts before the stronger qualification
+validator runs.
+
+Storage admission must still assemble WGSL, regenerate manifests and codecs,
+validate qualification bundles and full matrix evidence through
+`@plasius/gpu-shader/testing`, then atomically promote the immutable version.
+Runtime must still resolve only promoted catalog assets and verify bytes,
+compatibility, features, formats, and limits before pipeline creation.
+
+Rollout and user-visible style discovery use the canonical exports:
+
+- feature flag: `asset.pipeline.shader-store.enabled`
+- capability: `gpu.shader.style.select`
 
 ## Model Resolution Contracts
 
@@ -191,6 +288,8 @@ separately governed generator implementation is delivered.
 - plasius-ltd-site `docs/adrs/adr-0084-unified-ai-asset-pipeline-packages.md`
 - plasius-ltd-site `docs/tdrs/tdr-0004-unified-ai-asset-pipeline.md`
 - package `docs/adrs/adr-0002-model-resolution-contracts.md`
+- package `docs/adrs/adr-0003-wgsl-shader-asset-contracts.md`
+- package `docs/tdrs/tdr-0001-wgsl-shader-asset-envelope-validation.md`
 
 ## Development
 

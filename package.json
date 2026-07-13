@@ -1,7 +1,7 @@
 {
   "name": "@plasius/asset-contracts",
   "version": "0.2.0",
-  "description": "Canonical contracts for Plasius asset jobs, manifests, screenshot plans, reviews, and promotion records.",
+  "description": "Canonical contracts for Plasius asset jobs, model resolution, immutable WGSL shader assets, reviews, and promotion records.",
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.cjs",
@@ -50,6 +50,9 @@
     "manifest",
     "review",
     "pipeline",
+    "webgpu",
+    "wgsl",
+    "shader",
     "plasius"
   ],
   "author": "Plasius LTD <development@plasius.co.uk>",
@@ -94,5 +97,8 @@
   },
   "overrides": {
     "minimatch": "^10.2.1"
+  },
+  "dependencies": {
+    "@plasius/gpu-shader": "^0.1.0"
   }
 }
