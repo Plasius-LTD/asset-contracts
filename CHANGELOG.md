@@ -3,6 +3,20 @@
 ## Unreleased
 
 - **Added**
+  - (placeholder)
+
+- **Changed**
+  - (placeholder)
+
+- **Fixed**
+  - (placeholder)
+
+- **Security**
+  - (placeholder)
+
+## [0.3.0] - 2026-07-13
+
+- **Added**
   - Added typed model, reflected GPU-interface, WGSL shader, rendering-style
     profile, and shader-validation-evidence asset manifests and immutable
     factories for Story #1027 and Task #15.
@@ -95,3 +109,4 @@
 [0.1.4]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.1.4
 [0.1.5]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.1.5
 [0.2.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.2.0
+[0.3.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.3.0
