@@ -13,7 +13,11 @@
 
 - **Security**
   - Added fail-closed source and npm-package admission for the administrative contributor registry and pinned the CI/CD runtime to Node.js 24.18.0 LTS.
-  - (placeholder)
+  - Added zero-dependency, path-only Git-index, working-tree, and final npm-pack
+    gates that prevent CSV files, contributor registries, signed CLA artifacts,
+    and privacy-marked registries from entering source or release artifacts.
+  - Replaced the broad `legal/` package entry with the three exact public CLA
+    Markdown documents and an extension-constrained final package allowlist.
 
 ## [0.3.1] - 2026-07-13
 
