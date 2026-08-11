@@ -20,6 +20,8 @@
   - Fixed PVOX 1.0 to a major/minor version, whole uncompressed 64-KiB pages,
     scoped metadata/LOD/render/collision page kinds, bounded codec/layout
     constants, and feasible brick/logical-voxel/encoded-sample ceilings.
+  - Bound npm publication to the exact prepared `main` commit after successful
+    push-triggered CI.
   - (placeholder)
 
 - **Fixed**
@@ -53,6 +55,9 @@
     and privacy-marked registries from entering source or release artifacts.
   - Replaced the broad `legal/` package entry with the three exact public CLA
     Markdown documents and an extension-constrained final package allowlist.
+  - Removed the legacy npm write-token path and added a fail-closed npm
+    11.5.1-or-newer OIDC runtime check.
+  - (placeholder)
 
 ## [0.3.1] - 2026-07-13
 
