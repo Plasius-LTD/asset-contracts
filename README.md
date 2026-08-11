@@ -35,6 +35,31 @@ The exported surface covers:
 - generic manifest inference plus byte-verified typed promotion that preserves
   specialized manifest fields
 
+## Private Artifact Prevention
+
+Signed contributor agreements and contributor acceptance records are retained
+only in an approved access-controlled system outside source control. The
+zero-dependency prevention gate inspects path metadata only; it never opens or
+hashes suspected private artifacts.
+
+Run the repository and package gates before review or release:
+
+```bash
+npm run privacy:check
+npm run test:privacy
+npm run build
+npm run pack:check
+```
+
+`privacy:check` evaluates both working-tree paths and the proposed Git index,
+so ignored files and tracked-but-unstaged deletions cannot bypass it.
+`pack:check` validates the explicit `package.json` publish allowlist and the
+exact `npm pack --dry-run` path manifest. Only the three public CLA Markdown
+documents may be published from `legal/`; `dist/`, `src/`, and `docs/` also
+enforce file-extension allowlists. CI, release preparation, and CD all fail
+closed on these gates. The targeted path rules remain defense in depth and do
+not replace secret scanning, access controls, or incident response.
+
 ## WebGPU Shader Asset Contracts
 
 `@plasius/gpu-shader` owns reflection-derived GPU layouts, ABI hashes, exact

@@ -4,3 +4,4 @@
 - [ADR 0002: Model Resolution Contracts](./adr-0002-model-resolution-contracts.md)
 - [ADR 0003: WGSL Shader Asset Contracts](./adr-0003-wgsl-shader-asset-contracts.md)
 - [ADR 0004: Immutable Exact Asset Versions](./adr-0004-immutable-exact-asset-versions.md)
+- [ADR 0005: Path-Only Private-Artifact Prevention Gates](./adr-0005-path-only-private-artifact-prevention-gates.md)
