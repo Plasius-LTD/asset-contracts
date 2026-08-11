@@ -57,6 +57,8 @@
     Markdown documents and an extension-constrained final package allowlist.
   - Removed the legacy npm write-token path and added a fail-closed npm
     11.5.1-or-newer OIDC runtime check.
+  - Enabled same-repository pull-request CI while preventing external forks and
+    `pull_request_target` from executing repository code on self-hosted runners.
   - (placeholder)
 
 ## [0.3.1] - 2026-07-13
