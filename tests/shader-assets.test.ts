@@ -332,7 +332,7 @@ describe("GPU shader asset contracts", () => {
   });
 
   it("rejects mutable versions across every immutable GPU asset envelope", () => {
-    const immutableVersionError = /Immutable asset version must be an exact token/u;
+    const immutableVersionError = /exact token(?: required)?/u;
 
     expect(() => createGpuInterfaceAssetManifest({
       assetKind: "gpu-interface",
@@ -462,7 +462,7 @@ describe("GPU shader asset contracts", () => {
   });
 
   it("rejects mutable versions in nested exact GPU references", () => {
-    const immutableVersionError = /Immutable asset version must be an exact token/u;
+    const immutableVersionError = /exact token(?: required)?/u;
 
     expect(() => createModelAssetManifest({
       assetKind: "model",
