@@ -28,6 +28,8 @@ The exported surface covers:
 - immutable promoted `ModelAssetRef` values
 - canonical model processing, LOD, collision, assembly, converter, and fidelity evidence
 - asynchronous resolution records and the disabled Phase 1 generator port
+- additive PVOX request, artifact, voxel capability, physical evidence, native
+  render, confirmation-binding, and durable lifecycle contracts
 - typed model, reflected GPU-interface, WGSL shader, rendering-style profile,
   and shader-validation-evidence asset manifests
 - model-facing GPU ABI references, semantics, and optional exact default-style
@@ -270,6 +272,162 @@ an explicit semantic-risk override. Completed staged assets additionally require
 a backend-issued promotion receipt binding the proposal, confirmed manifest and
 assembly closure to the exact final `ModelAssetRef`.
 
+## PVOX Model Resolution Contracts
+
+`MODEL_RESOLUTION_V2_CONTRACT_VERSION` is an additive contract family for the
+partner-to-PVOX pipeline. It does not change the v1 GLB ingestion contracts or
+`ModelAssetRef`. A v2 processing manifest uses the discriminant
+`representation: "pvox"`; its authenticated runtime resource has the fixed
+`.pvox` extension, `application/vnd.plasius.pvox` media type, `PVOX` magic,
+the `{ major: 1, minor: 0 }` static/rigid format, 256-byte header, 128-byte
+directory entries, at most 64 sections, and whole uncompressed 64-KiB pages.
+Pages are typed as metadata, LOD structure, render field, or collision field;
+field pages carry a complete LOD/partition/depth/Morton scope. Root, directory,
+page-set, binary-closure, compilation-input, and runtime-request-profile hashes
+remain distinct.
+
+Use `createModelRequestSpecV2` for a PVOX resolution. Source acquisition and
+decode limits live only in `sourceIngestionLimits`. The texture-free runtime
+profile separately declares fidelity, geometry mode, required capabilities,
+and PVOX artifact/page/hierarchy/brick/logical-voxel/encoded-sample/residency
+limits. The default artifact ceilings are 524,288 render bricks, 268,435,456
+logical voxels, and 8,388,608 encoded surface samples; factories also reject
+record counts that cannot fit the declared whole-page artifact. Legacy triangle
+or texture fields cannot be supplied as PVOX runtime constraints. Partition
+extent is fidelity-driven and must fit the LOD0 cell size and hierarchy depth;
+the contract does not assume a 32-metre partition can meet every profile.
+
+```ts
+import {
+  MODEL_RESOLUTION_V2_CONTRACT_VERSION,
+  PVOX_MODEL_REQUEST_POLICY_ID,
+  PVOX_PAGE_SIZE_BYTES,
+  createModelRequestSpecV2,
+} from "@plasius/asset-contracts";
+
+const request = createModelRequestSpecV2({
+  contractVersion: MODEL_RESOLUTION_V2_CONTRACT_VERSION,
+  policyProfileId: PVOX_MODEL_REQUEST_POLICY_ID,
+  requestSemanticProfileHash: requestSemanticProfileSha256,
+  query: "weathered oak farmhouse table",
+  revision: 0,
+  hardConstraints: { collision: "required", partition: "allowed" },
+  softPreferences: { category: "furniture", materials: ["oak"] },
+  exclusions: [],
+  sourceIngestionLimits: {
+    maximumDownloadBytes: 100_000_000,
+    maximumExpandedBytes: 200_000_000,
+    maximumArchiveEntries: 1_000,
+    maximumSourceFiles: 2_000,
+    maximumDecodedTextureBytes: 100_000_000,
+    maximumTextureDimensionPx: 8_192,
+  },
+  pvoxRuntimeProfile: {
+    profileId: "static-world-pvox-v1",
+    fidelityProfileId: "props-furniture-v1",
+    capabilityProfileId: "world-editable-v1",
+    geometryMode: "auto",
+    requiredCapabilities: [
+      "rendering", "collision", "destruction", "thermal", "moisture",
+      "fluid-boundary",
+    ],
+    limits: {
+      maximumArtifactBytes: 4 * PVOX_PAGE_SIZE_BYTES,
+      maximumPages: 4,
+      maximumHierarchyDepth: 8,
+      maximumHierarchyNodes: 1_000,
+      maximumBricks: 512,
+      maximumLogicalVoxels: 262_144,
+      maximumEncodedSurfaceSamples: 10_000,
+      maximumSurfaceProperties: 4_096,
+      maximumPhysicalPaletteRecords: 2,
+      maximumPhysicalEvidenceEntries: 38,
+      maximumMaterialRegions: 2,
+      maximumInteriorLayers: 16,
+      maximumMassPropertyRecords: 2,
+      maximumBondRecords: 128,
+      maximumPartitions: 32,
+      maximumLodCount: 4,
+      maximumCpuResidentBytes: 100_000_000,
+      maximumGpuResidentBytes: 100_000_000,
+    },
+  },
+});
+```
+
+`createPvoxAssetManifestV1`, `createVoxelTechnicalProfile`,
+`createVoxelCapabilityAssessment`, `createPhysicalPropertyEvidence`,
+`createPvoxFidelityEvidence`, `createPvoxEditJournal`, and
+`createModelProcessingManifestV2` reconstruct and deeply freeze allow-listed
+data. The processing factory binds the verified source and canonical-document
+hashes, distinct compilation-input and runtime-request-profile attestations,
+and binary closure to the independently validated PVOX artifact, capability
+evidence, physical evidence, fidelity decision, processing closure, and assembly
+closure. Every leaf and assembly has a distinct domain-separated assembly
+closure attestation; a leaf hashes an empty child list rather than aliasing its
+binary closure. `PVOX_HASH_DOMAINS`, `PVOX_HASH_PREIMAGE_LAYOUTS`, and the
+executable preimage helpers publish the exact PVOX 1.0 section, directory,
+page-set, root, evidence, confirmation, journal, and publication hash inputs.
+Fixed-layout encoders reject unknown own fields, malformed tuple lengths,
+non-`Uint8Array` byte payloads, shared mutable byte storage, and inputs beyond
+the governed artifact, assembly, and preimage ceilings rather than silently
+omitting or coercing them.
+The synchronous factories cross-bind supplied digests and typed attestations.
+At an authenticated trust boundary, the host must recompute each applicable
+digest from the canonical preimage and verify the attestation token against its
+allow-listed issuer; matching object fields alone are not cryptographic proof.
+
+Physical evidence is localized by `(regionId, materialId, property)`. Every
+material region must carry the complete high-confidence governed property set
+for each advertised editable capability; inferred evidence requires signed
+review, and critical density, hardness, tensile/compressive/shear strength,
+fracture, interior, ignition, and melting values cannot be zero or defaulted.
+Physical evidence is serialized in authoritative
+region-index then governed-property order, and both the region inventory and
+aggregate evidence carry domain-separated hash attestations. Edit journals
+address each copy-on-write patch by
+field kind, LOD, partition, hierarchy depth, Morton code, expected page index,
+and expected/result page hashes. Genesis is bound to the authenticated base root;
+standalone later revisions require the complete authenticated current placement
+state, while chain validation derives that state after every copy-on-write step.
+Insert, replace, and remove operations reject empty/no-op transitions.
+
+`createModelCandidateV2` additionally requires the four native-PVOX review
+views, native-render attestation, allowed rights decision, and one passing
+attestation for every non-overridable gate. Its confirmation token subject binds
+the exact v2 request and semantic assessment, candidate identity, full
+provenance and normalized rights decision, source/PVOX/binary/processing/
+assembly/evaluation hashes, capability evidence, ordered view hashes, fidelity
+and physical evidence, and the complete native-render record. Native-render,
+inventory, binary/processing/assembly/evaluation, confirmation, edit, and
+publication subjects use distinct hash domains. A blocked candidate remains available
+as a diagnostic result with reason codes but receives no confirmation token.
+Only a low semantic score can be overridden; licensing, malware, source-format,
+PVOX, fidelity, physical-property, renderer, and accessibility failures always
+remain blocking. Completed staged candidates require a pointer-last promotion
+receipt binding the proposal, confirmation, processing/assembly closures,
+confirmation-binding hash, credits, catalog row, index snapshot, and final
+immutable `ModelAssetRef`.
+
+`VoxelTechnicalProfile.brickCount`, `logicalVoxelCapacity`, and
+`encodedSurfaceSampleCount` are artifact-wide render-field totals across every
+retained LOD, not LOD0-only values. Section counts exactly match the closed
+static, optional bond, and optional collision registry. Advertising destruction
+requires non-empty reviewed mass, bond-graph, and interior-layer records.
+Durable snapshots carrying confirmation must have `updatedAt` at or after the
+confirmation timestamp; their JSON Schemas enforce the same state-dependent
+confirmation, promotion, terminal, and reason-code rules as the factories.
+
+The v2 lifecycle preserves every v1 state and adds `downloading`, `importing`,
+`voxelizing`, `evaluating-fidelity`, and `awaiting-material-review`.
+`toLegacyModelResolutionState` supplies a deterministic projection for existing
+wrappers without widening the v1 state union. Closed JSON Schema 2020-12
+descriptors are exported through `MODEL_RESOLUTION_V2_JSON_SCHEMAS` for MCP and
+admin packages. Each of the 14 standalone schemas has a stable versioned `$id`,
+a self-contained closed `$defs` bundle, and strict Ajv 2020 coverage; runtime
+consumers must still call the factories for relational/hash/chronology checks at
+trust boundaries.
+
 ## Model Processing and References
 
 `ModelProcessingManifest` fixes processed output to metres, Y-up, `-Z` forward,
@@ -328,6 +486,7 @@ separately governed generator implementation is delivered.
 ## Feature Flag
 
 - `asset.pipeline.unified-ai-assets.enabled`
+- `asset.pipeline.pvox-models.enabled`
 
 ## Related Documents
 
@@ -336,7 +495,9 @@ separately governed generator implementation is delivered.
 - plasius-ltd-site `docs/tdrs/tdr-0004-unified-ai-asset-pipeline.md`
 - package `docs/adrs/adr-0002-model-resolution-contracts.md`
 - package `docs/adrs/adr-0003-wgsl-shader-asset-contracts.md`
+- package `docs/adrs/adr-0006-pvox-model-resolution-contracts.md`
 - package `docs/tdrs/tdr-0001-wgsl-shader-asset-envelope-validation.md`
+- package `docs/tdrs/tdr-0003-pvox-validation-and-confirmation-binding.md`
 
 ## Development
 
