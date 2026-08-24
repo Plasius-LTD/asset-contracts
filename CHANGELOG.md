@@ -3,15 +3,50 @@
 ## Unreleased
 
 - **Added**
+  - Added the additive PVOX v2 model-resolution contract family for Task #25:
+    source-ingestion and texture-free runtime request profiles, authenticated
+    PVOX manifests, voxel technical/capability/physical/fidelity evidence,
+    compound-addressed edit journals, native-render confirmation binding,
+    diagnostic/confirmable candidate results, pointer-last promotion receipts,
+    durable lifecycle states, and strict self-contained JSON Schema descriptors.
+  - Added executable, little-endian PVOX hash-preimage encoders with an exact
+    normalized root-header layout and real SHA-256 golden vectors.
   - (placeholder)
 
 - **Changed**
+  - Preserved v1 GLB model-resolution APIs and immutable `ModelAssetRef` values
+    while providing deterministic v2-to-v1 state projections for compatibility
+    wrappers.
+  - Fixed PVOX 1.0 to a major/minor version, whole uncompressed 64-KiB pages,
+    scoped metadata/LOD/render/collision page kinds, bounded codec/layout
+    constants, and feasible brick/logical-voxel/encoded-sample ceilings.
   - (placeholder)
 
 - **Fixed**
   - (placeholder)
 
 - **Security**
+  - Added fail-closed validation for authenticated PVOX resource namespaces,
+    fixed format/page/limit invariants, binary/processing/assembly closure
+    separation, exact hash-domain bindings, localized physical and governed
+    fidelity admission, non-overridable hard gates, and confirmation tokens
+    bound to the complete candidate evidence subject.
+  - Bound confirmation and pointer-last publication to the complete semantic,
+    provenance, rights, binary/processing/assembly/evaluation, capability,
+    native-render, and confirmation-binding evidence closures.
+  - Required typed physical-inventory/render/evaluation/assembly attestations,
+    canonical physical evidence order, base-root-bound edit genesis, complete
+    current-state CAS for later edits, and non-empty edit transitions.
+  - Made render brick/sample budgets artifact-wide across all retained LODs,
+    required an exact closed section registry and non-empty destruction bond
+    graph, and bound confirmation chronology to durable snapshot timestamps.
+  - Rejected unknown fixed-preimage fields, malformed fixed tuples, byte-view
+    type confusion, shared mutable byte storage, and inputs beyond governed
+    assembly/hash-work limits; aligned strict JSON Schema lifecycle branches
+    with the authoritative runtime factories.
+  - Pinned audited transitive `brace-expansion`, `nanoid`, and `postcss`
+    versions so the complete development and production dependency trees are
+    free of known npm advisories at the configured severity gate.
   - Added fail-closed source and npm-package admission for the administrative contributor registry and pinned the CI/CD runtime to Node.js 24.18.0 LTS.
   - Added zero-dependency, path-only Git-index, working-tree, and final npm-pack
     gates that prevent CSV files, contributor registries, signed CLA artifacts,
