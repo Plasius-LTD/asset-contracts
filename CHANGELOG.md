@@ -3,6 +3,20 @@
 ## Unreleased
 
 - **Added**
+  - (placeholder)
+
+- **Changed**
+  - (placeholder)
+
+- **Fixed**
+  - (placeholder)
+
+- **Security**
+  - (placeholder)
+
+## [0.4.0] - 2026-08-24
+
+- **Added**
   - Added the additive PVOX v2 model-resolution contract family for Task #25:
     source-ingestion and texture-free runtime request profiles, authenticated
     PVOX manifests, voxel technical/capability/physical/fidelity evidence,
@@ -185,3 +199,4 @@
 [0.2.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.2.0
 [0.3.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.3.0
 [0.3.1]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.3.1
+[0.4.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.4.0
