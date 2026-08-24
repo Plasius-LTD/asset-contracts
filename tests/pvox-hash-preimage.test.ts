@@ -30,6 +30,7 @@ import {
   encodePvoxU32LeV1,
   encodePvoxU64LeV1,
   normalizePvoxRootHeaderForHashV1,
+  projectPvoxNamedJsonClosureV1,
 } from "../src/pvox-hash-preimage.js";
 import {
   MODEL_RESOLUTION_V2_CONTRACT_VERSION,
@@ -468,6 +469,18 @@ describe("PVOX named JSON closure projections", () => {
       ...confirmation(),
       candidateId: "candidate-2",
     }))).not.toBe(baseline);
+  });
+
+  it("preserves an own enumerable __proto__ field as canonical data", () => {
+    const input = JSON.parse('{"candidateId":"candidate-1","__proto__":{"polluted":true}}') as Record<string, unknown>;
+    const projected = projectPvoxNamedJsonClosureV1("confirmation-binding", input) as Record<string, unknown>;
+
+    expect(Object.getPrototypeOf(projected)).toBeNull();
+    expect(Object.hasOwn(projected, "__proto__")).toBe(true);
+    expect(projected.__proto__).toEqual({ polluted: true });
+    expect(canonicalizePvoxNamedJsonClosureV1("confirmation-binding", input))
+      .toBe('{"__proto__":{"polluted":true},"candidateId":"candidate-1"}');
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined();
   });
 
   it("rejects accessors before invoking them and rejects non-JSON graph shapes", () => {

@@ -670,6 +670,35 @@ const finalAssetRefInput = () => ({
   runtimeManifestUri: "mcp://models/catalog/oak-table/versions/1.0.0/manifest",
 });
 
+const existingCandidateInput = () => ({
+  ...candidateInput(),
+  assetRef: {
+    disposition: "existing" as const,
+    kind: "leaf" as const,
+    contentHash: hash("a"),
+    asset: finalAssetRefInput(),
+  },
+  processingManifest: {
+    ...processingManifestInput(),
+    pvox: {
+      ...processingPvoxManifestInput(),
+      artifact: {
+        ...processingPvoxManifestInput().artifact,
+        uri: `mcp://models/catalog/oak-table/versions/1.0.0/artifacts/sha256/${hash("a")}.pvox`,
+      },
+    },
+  },
+  confirmationBinding: {
+    ...confirmationBindingInput(),
+    candidateAssetRef: {
+      disposition: "existing" as const,
+      kind: "leaf" as const,
+      contentHash: hash("a"),
+      asset: finalAssetRefInput(),
+    },
+  },
+});
+
 const promotionReceiptInput = () => ({
   contractVersion: MODEL_RESOLUTION_V2_CONTRACT_VERSION,
   promotionId: "promotion-1",
@@ -1914,34 +1943,7 @@ describe("PVOX processing, confirmation, and durable resolution", () => {
   });
 
   it("selects an existing catalog asset only when the same immutable version proves PVOX representation", () => {
-    const existing = {
-      ...candidateInput(),
-      assetRef: {
-        disposition: "existing" as const,
-        kind: "leaf" as const,
-        contentHash: hash("a"),
-        asset: finalAssetRefInput(),
-      },
-      processingManifest: {
-        ...processingManifestInput(),
-        pvox: {
-          ...processingPvoxManifestInput(),
-          artifact: {
-            ...processingPvoxManifestInput().artifact,
-            uri: `mcp://models/catalog/oak-table/versions/1.0.0/artifacts/sha256/${hash("a")}.pvox`,
-          },
-        },
-      },
-      confirmationBinding: {
-        ...confirmationBindingInput(),
-        candidateAssetRef: {
-          disposition: "existing" as const,
-          kind: "leaf" as const,
-          contentHash: hash("a"),
-          asset: finalAssetRefInput(),
-        },
-      },
-    };
+    const existing = existingCandidateInput();
     expect(createModelCandidateV2(existing).assetRef.disposition).toBe("existing");
     expect(() => createModelCandidateV2({
       ...existing,
@@ -1960,6 +1962,39 @@ describe("PVOX processing, confirmation, and durable resolution", () => {
       ...existing,
       processingManifest: processingManifestInput(),
     })).toThrow(/catalog|PVOX|existing/i);
+  });
+
+  it.each([
+    ["asset ID", {
+      ...finalAssetRefInput(),
+      assetId: "walnut-table",
+      runtimeManifestUri: "mcp://models/catalog/walnut-table/versions/1.0.0/manifest",
+    }],
+    ["version", {
+      ...finalAssetRefInput(),
+      version: "2.0.0",
+      runtimeManifestUri: "mcp://models/catalog/oak-table/versions/2.0.0/manifest",
+    }],
+  ])("does not complete an existing selection with a different immutable %s", (_field, finalAssetRef) => {
+    const candidate = createModelCandidateV2(existingCandidateInput());
+    const confirmation = createModelCandidateConfirmationV2(confirmationInput(), candidate, "resolution-1");
+    const resolution = {
+      contractVersion: MODEL_RESOLUTION_V2_CONTRACT_VERSION,
+      resolutionId: "resolution-1",
+      requesterId: "requester-subject",
+      request: request(),
+      attempts: 1,
+      state: "completed" as const,
+      candidates: [candidate],
+      bestCandidate: candidate,
+      confirmation,
+      refinementQuestions: [],
+      createdAt: timestamp,
+      updatedAt: completedTimestamp,
+    };
+
+    expect(createModelResolutionV2({ ...resolution, finalAssetRef: finalAssetRefInput() }).finalAssetRef).toEqual(finalAssetRefInput());
+    expect(() => createModelResolutionV2({ ...resolution, finalAssetRef })).toThrow(/exact existing immutable asset identity/i);
   });
 
   it.each([

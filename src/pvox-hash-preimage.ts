@@ -1042,7 +1042,7 @@ function cloneProjectedData(
     }
     const prototype = Object.getPrototypeOf(value);
     if (prototype !== Object.prototype && prototype !== null) throw new Error("PVOX hash projection objects must have a plain or null prototype.");
-    const output: Record<string, unknown> = {};
+    const output = Object.create(null) as Record<string, unknown>;
     for (const key of Reflect.ownKeys(value)) {
       if (typeof key === "symbol") throw new Error("PVOX hash projection objects cannot contain symbol properties.");
       const descriptor = Object.getOwnPropertyDescriptor(value, key);

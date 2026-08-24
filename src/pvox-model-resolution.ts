@@ -3187,7 +3187,19 @@ export function createModelResolutionV2(input: unknown): ModelResolutionV2 {
   const finalAssetRef = record.finalAssetRef === undefined ? undefined : createModelAssetRef(record.finalAssetRef);
   if (state === "completed" && finalAssetRef === undefined) throw new Error("ModelResolutionV2 completed state requires finalAssetRef.");
   if (state !== "completed" && finalAssetRef !== undefined) throw new Error("ModelResolutionV2 finalAssetRef is only allowed for completed state.");
-  if (finalAssetRef !== undefined && bestCandidate !== undefined && (finalAssetRef.kind !== bestCandidate.assetRef.kind || finalAssetRef.contentHash !== bestCandidate.assetRef.contentHash)) throw new Error("ModelResolutionV2 finalAssetRef must match bestCandidate.");
+  if (finalAssetRef !== undefined && bestCandidate !== undefined) {
+    if (finalAssetRef.kind !== bestCandidate.assetRef.kind || finalAssetRef.contentHash !== bestCandidate.assetRef.contentHash) {
+      throw new Error("ModelResolutionV2 finalAssetRef must match bestCandidate.");
+    }
+    if (bestCandidate.assetRef.disposition === "existing") {
+      const existingAsset = bestCandidate.assetRef.asset;
+      if (finalAssetRef.assetId !== existingAsset.assetId
+        || finalAssetRef.version !== existingAsset.version
+        || finalAssetRef.runtimeManifestUri !== existingAsset.runtimeManifestUri) {
+        throw new Error("ModelResolutionV2 finalAssetRef must preserve the exact existing immutable asset identity.");
+      }
+    }
+  }
   let promotionReceipt: ModelPromotionReceiptV2 | undefined;
   if (record.promotionReceipt !== undefined) {
     if (state !== "completed" || finalAssetRef === undefined || confirmation === undefined || bestCandidate?.admissionStatus !== "confirmable" || bestCandidate.assetRef.disposition !== "proposed") {
