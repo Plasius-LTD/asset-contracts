@@ -71,7 +71,30 @@ permissions:
   contents: read
 
 jobs:
+  validate_release_admission:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout main for release admission
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.base_branch }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          package-manager-cache: false
+
+      - name: Verify private artifact policy
+        working-directory: ${{ inputs.package_directory }}
+        run: npm run privacy:check
+
   prepare:
+    needs: validate_release_admission
     runs-on: ubuntu-latest
     environment: production
     outputs:
@@ -105,10 +128,6 @@ jobs:
           node-version-file: '.nvmrc'
           package-manager-cache: false
 
-      - name: Verify private artifact policy
-        working-directory: ${{ inputs.package_directory }}
-        run: npm run privacy:check
-
       - name: Prepare and land release metadata
         id: release
         env:
@@ -121,6 +140,9 @@ jobs:
           MERGE_TIMEOUT_SECONDS: ${{ inputs.merge_timeout_seconds }}
           GH_TOKEN: ${{ steps.release_prep_app_token.outputs.token }}
           RELEASE_PREP_AUTH_TOKEN: ${{ steps.release_prep_app_token.outputs.token }}
+          GIT_CONFIG_COUNT: "1"
+          GIT_CONFIG_KEY_0: core.hooksPath
+          GIT_CONFIG_VALUE_0: /dev/null
         run: |
           set -euo pipefail
 
@@ -241,11 +263,13 @@ jobs:
             fi
           fi
 
+          REUSING_INCOMPLETE_RELEASE="false"
           if [ "${BUMP}" = "none" ]; then
             TARGET_VER="${CURRENT_VER}"
           elif grep -Eq "^## (\[${CURRENT_VER}\]|${CURRENT_VER})( |$)" "${FILE}" && { [ "${CURRENT_PUBLISHED}" != "true" ] || [ "${CURRENT_RELEASE_STATE}" != "published" ]; }; then
             echo "Reusing already-prepared incomplete release version ${CURRENT_VER}."
             TARGET_VER="${CURRENT_VER}"
+            REUSING_INCOMPLETE_RELEASE="true"
           else
             TARGET_VER=$(node -e '
           const [localVersion, registryVersion, tagVersion, bump, preid] = process.argv.slice(1);
@@ -308,12 +332,12 @@ jobs:
             PUBLISHED="false"
           fi
 
-          if [ "${BUMP}" != "none" ] && [ "${PUBLISHED}" = "true" ]; then
+          if [ "${BUMP}" != "none" ] && [ "${PUBLISHED}" = "true" ] && [ "${REUSING_INCOMPLETE_RELEASE}" != "true" ]; then
             echo "${NAME}@${TARGET_VER} already exists on npm; cut a new version instead." >&2
             exit 1
           fi
 
-          if [ "${BUMP}" != "none" ] && gh release view "${TAG}" >/dev/null 2>&1; then
+          if [ "${BUMP}" != "none" ] && [ "${REUSING_INCOMPLETE_RELEASE}" != "true" ] && gh release view "${TAG}" >/dev/null 2>&1; then
             IS_DRAFT="$(gh release view "${TAG}" --json isDraft --jq '.isDraft')"
             if [ "${IS_DRAFT}" != "true" ]; then
               echo "GitHub release ${TAG} is already published; cut a new version instead." >&2

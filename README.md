@@ -533,5 +533,7 @@ self-hosted runners. Release preparation and npm publication use GitHub-hosted
 runners with Node.js 24.18.0 LTS and npm 11.5.1 or newer. CD must not be
 dispatched until the npm trusted-publisher binding is verified. Publication is
 token-free and proceeds only while the prepared commit remains the exact
-`main` head after successful push-triggered CI for that SHA.
+`main` head after successful push-triggered CI for that SHA. Repository release
+admission scripts run in a separate credential-free job; the fresh privileged
+release-preparation job disables Git hooks before creating its review PR.
 <!-- END PLASIUS RELEASE INTEGRITY -->

@@ -334,11 +334,7 @@ jobs:
           } >> "${GITHUB_OUTPUT}"
 
       - name: Verify private artifact policy
-        run: |
-          set -euo pipefail
-          if node -e "const scripts = require('./package.json').scripts || {}; process.exit(scripts['privacy:check'] ? 0 : 1)"; then
-            npm run privacy:check
-          fi
+        run: npm run privacy:check
 
       - name: Install dependencies
         run: npm ci
@@ -466,6 +462,7 @@ jobs:
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Use Node.js 24.18.0
         uses: actions/setup-node@v6
@@ -812,6 +809,7 @@ jobs:
       - name: Ensure release tag points at exact main commit
         env:
           EXPECTED_SHA: ${{ inputs.expected_commit_sha }}
+          GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.release.outputs.release_tag }}
           PACKAGE_PUBLISHED: ${{ steps.release.outputs.should_publish_npm != 'true' }}
         run: |
@@ -833,8 +831,12 @@ jobs:
             exit 1
           fi
 
-          git tag "${TAG}" "${EXPECTED_SHA}"
-          git push origin "refs/tags/${TAG}"
+          gh api \
+            --method POST \
+            "repos/${GITHUB_REPOSITORY}/git/refs" \
+            -f ref="refs/tags/${TAG}" \
+            -f sha="${EXPECTED_SHA}" \
+            >/dev/null
 
       - name: Create GitHub Release draft
         env:

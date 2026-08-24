@@ -59,6 +59,10 @@
     11.5.1-or-newer OIDC runtime check.
   - Enabled same-repository pull-request CI while preventing external forks and
     `pull_request_target` from executing repository code on self-hosted runners.
+  - Isolated repository release-admission scripts from the write-capable
+    release-preparation job, disabled Git hooks in that privileged workspace,
+    made the final-package privacy gate unconditional, and added fail-closed
+    recovery for partially completed npm/GitHub releases.
   - (placeholder)
 
 ## [0.3.1] - 2026-07-13
