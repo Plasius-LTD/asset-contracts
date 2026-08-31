@@ -139,9 +139,7 @@ describe("npm release trust boundary", () => {
 
   it("uses hosted pull-request runners and trusted repository runners", () => {
     expect(ciWorkflow).toContain("pull_request:");
-    expect(ciWorkflow.match(/runs-on: \$\{\{ fromJSON\(github\.event_name == 'pull_request'/gu)).toHaveLength(2);
-    expect(ciWorkflow).toContain('["ubuntu-latest"]');
-    expect(ciWorkflow).toContain('["self-hosted","Linux","X64"]');
+    expect(ciWorkflow.match(/runs-on: ubuntu-latest/gu)).toHaveLength(2);
     expect(ciWorkflow).toContain("github.event.pull_request.head.repo.full_name == github.repository");
     expect(ciWorkflow).not.toContain("pull_request_target");
     expect(ciWorkflow).not.toContain("fromJSON(vars.");
