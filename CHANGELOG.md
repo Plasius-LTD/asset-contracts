@@ -6,6 +6,20 @@
   - (placeholder)
 
 - **Changed**
+  - (placeholder)
+
+- **Fixed**
+  - (placeholder)
+
+- **Security**
+  - (placeholder)
+
+## [0.4.1] - 2026-08-31
+
+- **Added**
+  - (placeholder)
+
+- **Changed**
   - Routed reviewed CI through the organisation's quarantined public runner group while retaining explicit platform labels.
   - (placeholder)
 
@@ -201,3 +215,4 @@
 [0.3.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.3.0
 [0.3.1]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.3.1
 [0.4.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.4.0
+[0.4.1]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.4.1
