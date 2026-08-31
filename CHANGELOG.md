@@ -9,6 +9,9 @@
   - (placeholder)
 
 - **Fixed**
+  - Preserved hosted pull-request isolation and the quarantined main runner
+    group while disabling self-hosted package-cache finalization and bounding
+    validation runtime.
   - (placeholder)
 
 - **Security**

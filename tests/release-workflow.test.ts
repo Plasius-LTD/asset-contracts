@@ -142,6 +142,12 @@ describe("npm release trust boundary", () => {
     expect(ciWorkflow.match(/runs-on: \$\{\{ fromJSON\(github\.event_name == 'pull_request'/gu)).toHaveLength(2);
     expect(ciWorkflow).toContain('["ubuntu-latest"]');
     expect(ciWorkflow).toContain('["self-hosted","Linux","X64"]');
+    expect(ciWorkflow).toContain('"group":"Public CI - Quarantined"');
+    expect(ciWorkflow.match(/actions\/checkout@v5/gu)).toHaveLength(2);
+    expect(ciWorkflow.match(/actions\/setup-node@v6/gu)).toHaveLength(2);
+    expect(ciWorkflow).toContain("cache: ${{ github.event_name == 'pull_request' && 'npm' || '' }}");
+    expect(ciWorkflow.match(/package-manager-cache: false/gu)).toHaveLength(2);
+    expect(ciWorkflow).toContain("timeout-minutes: 30");
     expect(ciWorkflow).toContain("github.event.pull_request.head.repo.full_name == github.repository");
     expect(ciWorkflow).not.toContain("pull_request_target");
     expect(ciWorkflow).not.toContain("fromJSON(vars.");
