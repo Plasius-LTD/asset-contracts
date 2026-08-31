@@ -6,6 +6,7 @@
   - (placeholder)
 
 - **Changed**
+  - Routed reviewed CI through the organisation's quarantined public runner group while retaining explicit platform labels.
   - (placeholder)
 
 - **Fixed**
