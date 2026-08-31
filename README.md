@@ -1,5 +1,13 @@
 # @plasius/asset-contracts
 
+[![npm version](https://img.shields.io/npm/v/@plasius/asset-contracts.svg)](https://www.npmjs.com/package/@plasius/asset-contracts)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/Plasius-LTD/asset-contracts/ci.yml?branch=main&label=build&style=flat)](https://github.com/Plasius-LTD/asset-contracts/actions/workflows/ci.yml)
+[![coverage](https://img.shields.io/codecov/c/github/Plasius-LTD/asset-contracts)](https://codecov.io/gh/Plasius-LTD/asset-contracts)
+[![License](https://img.shields.io/github/license/Plasius-LTD/asset-contracts)](./LICENSE)
+[![Code of Conduct](https://img.shields.io/badge/code%20of%20conduct-yes-blue.svg)](./CODE_OF_CONDUCT.md)
+[![Security Policy](https://img.shields.io/badge/security%20policy-yes-orange.svg)](./SECURITY.md)
+[![Changelog](https://img.shields.io/badge/changelog-md-blue.svg)](./CHANGELOG.md)
+
 Canonical contracts for Plasius asset jobs, model resolution, immutable WebGPU
 shader assets, screenshot plans, reviews, and promotion records.
 
