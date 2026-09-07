@@ -16,6 +16,8 @@
   - (placeholder)
 
 - **Security**
+  - Added a `fast-uri` `^3.1.6` override to clear the four high-severity
+    host-confusion and SSRF advisories reported for versions below 3.1.6.
   - (placeholder)
 
 ## [0.4.1] - 2026-08-31
