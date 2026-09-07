@@ -6,7 +6,8 @@
   - (placeholder)
 
 - **Changed**
-  - (placeholder)
+  - Refreshed compatible @plasius/* lockfile resolutions to the latest published releases.
+ - (placeholder)
 
 - **Fixed**
   - Preserved hosted pull-request isolation and the quarantined main runner
