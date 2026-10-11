@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- **Added**
+  - (placeholder)
+
+- **Changed**
+  - (placeholder)
+
+- **Fixed**
+  - (placeholder)
+
+- **Security**
+  - (placeholder)
+
+## [0.4.4] - 2026-10-11
+
 - Refresh npm dependency lockfile to current supported stable versions (weekly maintenance, 2026-10-11). Refresh published Plasius package baselines after upstream releases.
 
 - **Added**
@@ -258,3 +272,4 @@
 [0.4.1]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.4.1
 [0.4.2]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.4.2
 [0.4.3]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.4.3
+[0.4.4]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.4.4
