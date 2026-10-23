@@ -526,7 +526,43 @@ npm run pack:check
 
 ## Support
 
-`Plasius-LTD/asset-contracts` keeps GitHub Issues disabled. File package bugs and support requests in [`Plasius-LTD/plasius-ltd-site`](https://github.com/Plasius-LTD/plasius-ltd-site/issues) and include `asset-contracts` in the title or body so package work can be routed correctly.
+File package bugs, support requests, and implementation Tasks in
+[`Plasius-LTD/asset-contracts` Issues](https://github.com/Plasius-LTD/asset-contracts/issues),
+which are enabled. Report vulnerabilities privately through
+[SECURITY.md](./SECURITY.md).
+
+The organisation [Plasius-LTD-site Project](https://github.com/orgs/Plasius-LTD/projects/1)
+remains the source of truth for acceptance criteria, ownership, and status.
+Epics, Features, and Stories remain in the site repository; package Tasks belong
+here and link to their parent Feature. Existing site issues retain their history
+and links; they do not need to be moved or duplicated.
+
+### Model resource contract follow-ups
+
+[Feature 1153](https://github.com/Plasius-LTD/plasius-ltd-site/issues/1153) owns the
+following package Tasks created by
+[tracker coordination 1169](https://github.com/Plasius-LTD/plasius-ltd-site/issues/1169):
+
+| Contract concern | Package Task |
+| --- | --- |
+| Model resource descriptors | [#48](https://github.com/Plasius-LTD/asset-contracts/issues/48) |
+| Conversion diagnostics | [#49](https://github.com/Plasius-LTD/asset-contracts/issues/49) |
+| Texture and resource roles | [#50](https://github.com/Plasius-LTD/asset-contracts/issues/50) |
+| Promotion manifest resource closure | [#51](https://github.com/Plasius-LTD/asset-contracts/issues/51) |
+
+These are follow-up qualification and implementation scopes, not new API promises
+or completed functionality. Reuse the existing file descriptors, manifests,
+roles, promotion records, GPU contracts, and model-resolution contracts; identify
+remaining gaps before changing exports. Separate animation and shader ABI work
+remains in its existing Tasks. Claim and start an active Project Task before any
+implementation.
+
+The Tasks inherit `gpu.model.conversion.enabled`, the backend remote rollout
+control for canonical model adapter adoption. This tracker correction does not
+change its evaluator or state. Future runtime adoption must test disabled,
+enabled, and rollback paths under that Feature.
+See [ADR 0008](./docs/adrs/adr-0008-package-owned-issue-tracking.md) for the tracker
+decision and release implications.
 
 ## License
 

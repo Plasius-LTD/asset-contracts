@@ -9,6 +9,8 @@
   - (placeholder)
 
 - **Fixed**
+  - Route npm support links and README guidance to the enabled package issue
+    tracker, with a Feature-linked model resource contract task map.
   - (placeholder)
 
 - **Security**
