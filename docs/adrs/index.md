@@ -7,3 +7,4 @@
 - [ADR 0005: Path-Only Private-Artifact Prevention Gates](./adr-0005-path-only-private-artifact-prevention-gates.md)
 - [ADR 0006: Additive PVOX Model-Resolution Contracts](./adr-0006-pvox-model-resolution-contracts.md)
 - [ADR 0007: Hosted OIDC Package Publication](./adr-0007-hosted-oidc-package-publication.md)
+- [ADR 0008: Package-Owned Issue Tracking](./adr-0008-package-owned-issue-tracking.md)
