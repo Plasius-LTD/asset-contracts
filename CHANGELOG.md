@@ -9,6 +9,20 @@
   - (placeholder)
 
 - **Fixed**
+  - (placeholder)
+
+- **Security**
+  - (placeholder)
+
+## [0.4.6] - 2026-10-23
+
+- **Added**
+  - (placeholder)
+
+- **Changed**
+  - (placeholder)
+
+- **Fixed**
   - Route npm support links and README guidance to the enabled package issue
     tracker, with a Feature-linked model resource contract task map.
   - (placeholder)
@@ -292,3 +306,4 @@
 [0.4.3]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.4.3
 [0.4.4]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.4.4
 [0.4.5]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.4.5
+[0.4.6]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.4.6
