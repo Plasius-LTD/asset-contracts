@@ -9,3 +9,4 @@
 - [ADR 0007: Hosted OIDC Package Publication](./adr-0007-hosted-oidc-package-publication.md)
 - [ADR 0008: Package-Owned Issue Tracking](./adr-0008-package-owned-issue-tracking.md)
 - [ADR 0009: Additive Model Resource Manifest Qualification](./adr-0009-model-resource-manifest-qualification.md)
+- [ADR 0010: Public Conversion Diagnostics](./adr-0010-public-conversion-diagnostics.md)

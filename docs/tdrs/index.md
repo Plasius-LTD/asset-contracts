@@ -4,3 +4,4 @@
 - [TDR 0002: Exact-Version Validation Routing](./tdr-0002-exact-version-validation-routing.md)
 - [TDR 0003: PVOX Validation and Confirmation Binding](./tdr-0003-pvox-validation-and-confirmation-binding.md)
 - [TDR 0004: Model Resource Manifest Qualification](./tdr-0004-model-resource-manifest-qualification.md)
+- [TDR 0005: Public Conversion Diagnostics](./tdr-0005-public-conversion-diagnostics.md)

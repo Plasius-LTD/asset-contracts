@@ -3,6 +3,10 @@
 ## Unreleased
 
 - **Added**
+  - Opt-in public-safe canonical conversion diagnostics with fixed codes/text,
+    resource/source identity, explicit loss/fallback evidence and legacy converter
+    projections. Reuses lazy model-core evaluation; independent approval and
+    promotion gates remain required.
   - (placeholder)
 
 - **Changed**
