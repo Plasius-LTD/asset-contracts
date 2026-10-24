@@ -61,3 +61,10 @@ stable codes without logging. Existing package boundaries/API remain stable.
 Remote flag gpu.model.conversion.enabled uses backend evaluator; capability N/A.
 Release via approved cd.yml/main/production/OIDC with exact CI and public
 registry/provenance/consumer verification. No site/backend secretref change.
+
+Diagnostic policy binding: canonical source formats gltf/glb select gltf-glb;
+obj/mtl select obj-mtl; fbx selects fbx; step/stp/iges/igs/ifc select cad-bim.
+Reject unknown source formats and any standard mismatch, even an empty
+otherwise successful report. This prevents applying another format's repair
+or acceptance rules. Requirements regression tests first reproduced three
+incorrect successful promotions, then reject the FBX/OBJ/CAD mismatches.

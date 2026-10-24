@@ -48,6 +48,13 @@ export class ModelResourcePromotionError extends TypeError {
   }
 }
 const qualified = new WeakSet<object>();
+// Canonical adapter formats select the released evaluator policy. An unknown
+// format cannot inherit a different standard's repair/acceptance rules.
+const conversionStandards = new Map<string, string>([
+  ["gltf", "gltf-glb"], ["glb", "gltf-glb"], ["obj", "obj-mtl"], ["mtl", "obj-mtl"],
+  ["fbx", "fbx"], ["step", "cad-bim"], ["stp", "cad-bim"],
+  ["iges", "cad-bim"], ["igs", "cad-bim"], ["ifc", "cad-bim"],
+]);
 function fail(code: ModelResourcePromotionError["code"] = "invalid-input"): never { throw new ModelResourcePromotionError(code); }
 function fields(value: unknown, allowed?: readonly string[]): Record<string, unknown> {
   if (!value || typeof value !== "object" || ![Object.prototype, null].includes(Object.getPrototypeOf(value))) fail();
@@ -161,7 +168,7 @@ export async function createModelResourcePromotionRecord(input: ModelResourcePro
       assertImmutableAssetVersion(source.version); assertImmutableAssetVersion(output.manifest.version);
       if (identity(source) === identity(output.manifest) || !same(output.manifest, createModelAssetManifest({ ...promotionInput.manifest, files: [...promotionInput.manifest.files].sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0) })) || output.manifest.assetKind !== "model") fail("package-mismatch");
       const converter = candidate.processingManifest.converter;
-      if (!diagnostics.technicalAccepted || !same(diagnostics.source, candidate.provenance)
+      if (!diagnostics.technicalAccepted || diagnostics.standard !== conversionStandards.get(converter.sourceFormat) || !same(diagnostics.source, candidate.provenance)
         || diagnostics.source.contentHash !== entry(source).sha256 || output.source.sourceContentHash !== entry(source).sha256
         || converter.sourceContentHash !== entry(source).sha256 || converter.outputContentHash !== entry(output.manifest).sha256
         || converter.id !== output.source.converterId || converter.version !== output.source.converterVersion
