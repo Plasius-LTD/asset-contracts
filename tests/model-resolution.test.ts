@@ -25,6 +25,7 @@ import {
   evaluateModelHardConstraints,
   evaluateModelHardConstraintsForProfile,
   isModelResolutionState,
+  qualifyModelConversionDiagnostics,
 } from "../src/index.js";
 
 const hash = (character: string): string => character.repeat(64);
@@ -317,6 +318,23 @@ const createPromotionReceipt = (
 });
 
 describe("model resolution contracts", () => {
+  it("consumes qualified converter projections without bypassing signed fidelity or hard gates", async () => {
+    const candidate = createCandidate();
+    const manifest = candidate.processingManifest;
+    const qualify = (issues: unknown[]) => qualifyModelConversionDiagnostics({
+      outcome: "completed", source: candidate.provenance,
+      resources: [], report: { standard: "obj-mtl", issues },
+    });
+    const good = await qualify([]);
+    const processing = createModelProcessingManifest({ ...manifest, converter: { ...manifest.converter, ...good.converter } });
+    const normalized = createModelCandidate({ ...candidate, processingManifest: processing });
+    expect(normalized.confirmationRequired).toBe(true);
+    expect(() => createModelCandidate({ ...normalized, rights: good })).toThrow();
+    expect(() => createModelCandidate({ ...normalized, hardGates: [] })).toThrow();
+    const denied = await qualify([{ kind: "loss", code: "unknown-adapter-code", path: "/", message: "private", effect: "dropped" }]);
+    expect(() => createModelProcessingManifest({ ...manifest, converter: { ...manifest.converter, ...denied.converter } })).toThrow(/fidelityGate outcome/i);
+    expect(createModelProcessingManifest({ ...manifest, converter: { ...manifest.converter, ...denied.converter }, fidelityGate: { ...manifest.fidelityGate, outcome: "blocked" } }).fidelityGate.outcome).toBe("blocked");
+  });
   it("creates a deeply immutable end-to-end resolution candidate and processing manifest", () => {
     const request = createRequest();
     const candidate = createCandidate();

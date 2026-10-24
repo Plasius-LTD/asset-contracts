@@ -28,6 +28,7 @@ The exported surface covers:
 - asset job metadata contracts
 - manifest and file descriptor contracts
 - opt-in canonical model package inventory and exact-byte qualification
+- opt-in public-safe canonical conversion diagnostics and resource/source binding
 - screenshot plan definitions
 - review findings and review report contracts
 - immutable promotion record contracts
@@ -103,6 +104,68 @@ and adds no UI capability. The model-core dependency is exact published
 runtime parser or renderer loading. Downstream adoption must use a released
 package. See [ADR 0009](./docs/adrs/adr-0009-model-resource-manifest-qualification.md)
 and [TDR 0004](./docs/tdrs/tdr-0004-model-resource-manifest-qualification.md).
+
+## Public Conversion Diagnostics
+
+`qualifyModelConversionDiagnostics` adds an opt-in, version-1 JSON boundary over
+published model-core diagnostics. It reuses the canonical evaluator, loading it
+only when this async helper is called. Existing factories remain compatible.
+
+```ts
+import { qualifyModelConversionDiagnostics } from "@plasius/asset-contracts";
+
+const result = await qualifyModelConversionDiagnostics({
+  outcome: "completed", // or "unsupported" / "failed" from your trusted adapter
+  source: publicSourceProvenance, // existing ModelProvenance; original source hash
+  report: canonicalDiagnosticInput, // model-core GpuModelDiagnosticInput
+  resources: [{ path: "/meshes/0", resource: publicModelResourceRef }],
+}, { signal: abortController.signal, timeoutMs: 10_000 });
+// Only these existing diagnostic/loss fields belong in ModelConverterEvidence:
+const converterEvidence = { ...trustedConverterIdentity, ...result.converter };
+```
+
+Every non-root diagnostic path must match exactly one supplied resource binding.
+The root path `/` refers to `result.source`; no resource is fabricated. Resource
+references use existing credential-free `mcp://models/...` contracts and include
+hash, length and MIME identity. Conflicting references for one URI reject. These
+bindings and provenance are caller assertions, not proof that bytes were read.
+Use manifest qualification and independent promotion checks at their boundaries.
+
+Statuses are derived deterministically: explicit failure wins, then unsupported
+data/outcome, then canonical rejection, then warning or clean success. Loss
+requires canonical explicit consent; denied loss produces blocking legacy loss
+evidence. Only canonical accepted repairs receive a fallback rule id. Unknown
+repair rules remain blocking. Arbitrary adapter codes, messages, private paths,
+provider exceptions, original repair values and forensic rawSource are never
+serialized; unknown adapter codes map to fixed category codes. Public codes are
+`conversion.warning`, `conversion.repair`, `conversion.loss.dropped`,
+`conversion.loss.approximated`, `conversion.unsupported`, `conversion.blocked`
+and `conversion.failed`, with fixed bounded messages. Malformed input rejects
+with value-free `ModelConversionDiagnosticsError.code`.
+
+This projection is technical evidence only. `technicalAccepted` never replaces
+human approval, malware/security, rights, fidelity, confirmation or promotion
+receipts. `result.converter` contains the exact existing diagnostics/losses
+shape; the detailed `result.diagnostics` additionally binds resources and
+loss/fallback metadata. Preserve all independent evidence when composing it.
+
+Inputs must be inert JSON records; getters, exotic prototypes, sparse arrays,
+cycles, symbols and extra contract keys reject. Metadata is snapshotted before
+awaiting. Fixed ceilings are 100 issues/resources, depth 12, 16,384 values,
+2,048 characters per string and 262,144 total string characters. Non-completed
+outcomes reserve one issue slot for a terminal diagnostic, so accept at most
+99 issues. Arrays never exceed legacy 100-entry limits. Default deadline is
+10 seconds, configurable from 1–60,000 ms; cancellation/deadlines bound the
+lazy import wait and are checked around bounded synchronous evaluation. They
+cannot preempt JavaScript evaluation or cancel the platform module loader.
+No network, filesystem, logs, retries or persistent state are introduced.
+
+Use the backend-evaluated `gpu.model.conversion.enabled` adoption decision;
+disabled/rollback paths retain existing factories and diagnostics. No live flag
+lookup/mutation or UI capability is added. The already-published exact
+model-core0.7.0 dependency supplies evaluation without adding a parser or
+renderer. No dependency version changes are needed. See [ADR 0010](./docs/adrs/adr-0010-public-conversion-diagnostics.md)
+and [TDR 0005](./docs/tdrs/tdr-0005-public-conversion-diagnostics.md).
 
 ## Private Artifact Prevention
 
