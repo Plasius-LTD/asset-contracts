@@ -27,6 +27,7 @@ The exported surface covers:
   helpers
 - asset job metadata contracts
 - manifest and file descriptor contracts
+- opt-in canonical model package inventory and exact-byte qualification
 - screenshot plan definitions
 - review findings and review report contracts
 - immutable promotion record contracts
@@ -44,6 +45,64 @@ The exported surface covers:
   references
 - generic manifest inference plus byte-verified typed promotion that preserves
   specialized manifest fields
+
+## Canonical Model Resource Qualification
+
+`qualifyModelResourceManifest` binds an existing `AssetManifest` to a published
+`@plasius/gpu-model-core` `ResourcePackageManifest` and the complete exported
+file bytes. Existing factories retain their staged-construction behavior.
+
+```ts
+import { qualifyModelResourceManifest } from "@plasius/asset-contracts";
+
+// Obtain manifest, packageManifest and exportedFiles from your trusted pipeline.
+const qualified = await qualifyModelResourceManifest({
+  manifest,
+  packageManifest,
+  files: exportedFiles, // [{ path, bytes: Uint8Array, contentType }]
+  signal: abortController.signal,
+  timeoutMs: 10_000,
+});
+```
+
+Every manifest path, canonical inventory path and payload path must correspond
+exactly, including the entrypoint. The qualifier checks actual byte lengths and
+SHA-256 digests, agreement of canonical MIME declarations, portable relative
+POSIX paths, case-insensitive collisions and file/directory conflicts. Optional
+inventory MIME declarations may be omitted; the descriptor and payload MIME
+declarations are required. It preserves roles, sourceAdapter, source/derived
+paths and specialized model metadata, returning frozen descriptors sorted by
+locale-independent code-unit order. Typed model inputs are also revalidated by
+`createModelAssetManifest`.
+
+Pass ordinary `Uint8Array` values backed by `ArrayBuffer`; use
+`new Uint8Array(nodeBuffer)` for Node buffers. Shared buffers, getters in
+metadata, exotic records and sparse arrays are rejected. Metadata and bytes
+are copied before the first hash. `MODEL_RESOURCE_MANIFEST_LIMITS` caps files
+at 16,384, each file at 64 MiB, total bytes at 128 MiB, metadata depth at 16 and
+metadata values at 262,144. Metadata strings are capped at 2,048 characters,
+keys at 128, paths at 1,024 and MIME declarations at 128. The default deadline
+is 10 seconds; callers may choose 1–60,000 ms. Cancellation and deadline checks
+surround each bounded digest; Web Crypto cannot cancel an in-flight digest.
+Failures use value-free `ModelResourceManifestError.code` values.
+
+Embedded resources remain inside their owning entrypoint; list only actual
+exported files. This helper checks bytes and declarations, not internal format
+references, MIME sniffing, malware, rendering, storage or promotion authority.
+Keep source provenance in the canonical document and do not substitute derived
+hashes for original source hashes. Detailed role mapping, animation/source
+relationships and promotion closure remain separately tracked work. The result
+is qualification at call time; callers must preserve the exact bytes in their
+own immutable storage boundary.
+
+The backend remote evaluator owns `gpu.model.conversion.enabled`. Call this
+helper on the enabled adoption path; disabled and rollback paths retain the
+existing factory path. The package performs no flag lookup or live mutation,
+and adds no UI capability. The model-core dependency is exact published
+`0.7.0` for public type compatibility; its import here is type-only, with no
+runtime parser or renderer loading. Downstream adoption must use a released
+package. See [ADR 0009](./docs/adrs/adr-0009-model-resource-manifest-qualification.md)
+and [TDR 0004](./docs/tdrs/tdr-0004-model-resource-manifest-qualification.md).
 
 ## Private Artifact Prevention
 

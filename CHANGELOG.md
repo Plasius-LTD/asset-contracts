@@ -3,15 +3,23 @@
 ## Unreleased
 
 - **Added**
+  - Opt-in canonical model resource manifest qualification with deterministic
+    file order, complete inventory/entrypoint checks, exact byte/hash/MIME
+    binding, bounded snapshots and cancellation/deadline handling. Existing
+    manifest factories remain compatible.
   - (placeholder)
 
 - **Changed**
+  - Add exact published `@plasius/gpu-model-core@0.7.0` for canonical public
+    inventory types; no runtime model parser import or other dependency update.
   - (placeholder)
 
 - **Fixed**
   - (placeholder)
 
 - **Security**
+  - Update development-only fast-uri from 3.1.8 to fixed 3.1.9 after the full
+    qualification audit reported URI-normalization advisories; retain major 3.
   - (placeholder)
 
 ## [0.4.6] - 2026-10-23
