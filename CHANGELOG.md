@@ -3,6 +3,20 @@
 ## Unreleased
 
 - **Added**
+  - (placeholder)
+
+- **Changed**
+  - (placeholder)
+
+- **Fixed**
+  - (placeholder)
+
+- **Security**
+  - (placeholder)
+
+## [0.6.0] - 2026-10-24
+
+- **Added**
   - Opt-in public-safe canonical conversion diagnostics with fixed codes/text,
     resource/source identity, explicit loss/fallback evidence and legacy converter
     projections. Reuses lazy model-core evaluation; independent approval and
@@ -334,3 +348,4 @@
 [0.4.5]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.4.5
 [0.4.6]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.4.6
 [0.5.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.5.0
+[0.6.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.6.0
