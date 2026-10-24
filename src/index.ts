@@ -39,6 +39,7 @@ export * from "./pvox-hash-preimage.js";
 export * from "./pvox-model-resolution.js";
 export * from "./pvox-model-resolution-schema.js";
 export * from "./model-resource-manifest.js";
+export * from "./model-texture-resources.js";
 export * from "./model-conversion-diagnostics.js";
 export {
   GPU_SHADER_STORE_FEATURE_FLAG,

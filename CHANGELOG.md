@@ -3,6 +3,9 @@
 ## Unreleased
 
 - **Added**
+  - Opt-in reloadable canonical texture/material resource qualification, exact
+    storage role/MIME mapping and separate GPU upload/atlas source bindings.
+    Preserves authored metadata and original resource identity through JSON reload.
   - (placeholder)
 
 - **Changed**

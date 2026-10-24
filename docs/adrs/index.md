@@ -10,3 +10,4 @@
 - [ADR 0008: Package-Owned Issue Tracking](./adr-0008-package-owned-issue-tracking.md)
 - [ADR 0009: Additive Model Resource Manifest Qualification](./adr-0009-model-resource-manifest-qualification.md)
 - [ADR 0010: Public Conversion Diagnostics](./adr-0010-public-conversion-diagnostics.md)
+- [ADR 0011: Reloadable Texture and Resource Roles](./adr-0011-reloadable-texture-resource-roles.md)
