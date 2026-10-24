@@ -3,6 +3,9 @@
 ## Unreleased
 
 - **Added**
+  - Opt-in model promotion composition binds complete source/output resource
+    bytes, conversion diagnostics and existing approval gates, with exact prior
+    package rollback and immutable source/derived lineage.
   - (placeholder)
 
 - **Changed**
