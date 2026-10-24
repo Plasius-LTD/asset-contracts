@@ -28,6 +28,7 @@ The exported surface covers:
 - asset job metadata contracts
 - manifest and file descriptor contracts
 - opt-in canonical model package inventory and exact-byte qualification
+- reloadable canonical texture/material metadata and explicit upload/atlas roles
 - opt-in public-safe canonical conversion diagnostics and resource/source binding
 - screenshot plan definitions
 - review findings and review report contracts
@@ -91,7 +92,7 @@ Embedded resources remain inside their owning entrypoint; list only actual
 exported files. This helper checks bytes and declarations, not internal format
 references, MIME sniffing, malware, rendering, storage or promotion authority.
 Keep source provenance in the canonical document and do not substitute derived
-hashes for original source hashes. Detailed role mapping, animation/source
+hashes for original source hashes. Role qualification is available through the additive helper below; animation/source
 relationships and promotion closure remain separately tracked work. The result
 is qualification at call time; callers must preserve the exact bytes in their
 own immutable storage boundary.
@@ -104,6 +105,71 @@ and adds no UI capability. The model-core dependency is exact published
 runtime parser or renderer loading. Downstream adoption must use a released
 package. See [ADR 0009](./docs/adrs/adr-0009-model-resource-manifest-qualification.md)
 and [TDR 0004](./docs/tdrs/tdr-0004-model-resource-manifest-qualification.md).
+
+## Reloadable Texture and Resource Roles
+
+`qualifyModelTextureResources` composes exact byte/inventory qualification with
+published model-core's verified material/texture graph. It keeps authored
+metadata and source image identity separate from derived GPU uploads/atlases.
+
+```ts
+import { qualifyModelTextureResources } from "@plasius/asset-contracts";
+
+const reload = await qualifyModelTextureResources({
+  manifest, packageManifest, files: exportedFiles,
+  graph: verifiedCanonicalGraph,
+  resources: [
+    { resourceId: "source-image", filePath: "textures/source.png" },
+    { resourceId: "embedded-buffer", filePath: "model.gltf" },
+  ], // Exactly one binding per graph resource.
+  derived: [
+    { role: "gpu-upload", filePath: "derived/upload.bin", sourceResourceIds: ["source-image"] },
+    { role: "texture-atlas", filePath: "derived/atlas.png", sourceResourceIds: ["source-image"] },
+  ], // Or [] when no derivative is exported.
+}, { signal: abortController.signal, timeoutMs: 10_000 });
+// Persist JSON.stringify(reload) alongside the qualified immutable bytes.
+```
+
+Use existing storage roles: canonical texture → texture with PNG/JPEG/WebP/KTX2
+MIME; material/animation → metadata with application/json; mesh → model or
+binary; auxiliary → binary or JSON metadata. Uploads require auxiliary/binary
+buffer files, atlases texture/image files. See TDR 0006 for the exact MIME table.
+Missing/duplicate resources, incompatible roles/MIME, unknown roles, graph
+clones and source/output collisions reject. External files match graph path,
+hash, byte length and MIME; embedded resources name the owning model entrypoint
+and retain their independent resource hash. List only actual exported files.
+
+The frozen version-1 result contains manifest, original source provenance,
+resources, canonical materials/textures and derived records. Authored usage,
+color space, sampler, binding transform, embedding policy and sourceMetadata
+survive JSON reload. Original image IDs and bytes are never replaced by atlas
+hashes or upload paths. No Blob payload or renderer allocation is serialized.
+Adapters own model-internal references, derivation algorithms and image content
+inspection; qualification does not attest those operations or grant promotion.
+Task 12 animation schemas, Task 23 shader ABI and Task 51 promotion closure
+remain separate.
+
+This is **trusted package metadata**, including names, extensions, original
+paths and authored sourceMetadata. Minimize/sanitize that data before public
+distribution; use the separate public diagnostics API for technical responses.
+Serialized graphs lose their private brand: verify reloaded canonical resources
+and reconstruct a graph through core before qualifying again. Produce graphs
+with the same installed model-core instance and matching module format (ESM
+import with ESM, require with CJS). The normal named guard import preserves that
+identity; unused exports remain tree-shakeable through sideEffects=false.
+
+Inputs/bytes are snapshotted before awaiting. Fixed ceilings are 16,384 resource
+bindings, 4,096 derivatives, 65,536 graph nodes, shared 262,144 metadata values,
+2,097,152 UTF-16 characters, depth 16 and 2,048 characters/string. Existing file
+limits also apply. Default deadline 10 seconds, allowed range 1–60,000 ms;
+cancellation/deadline reject without a partial result. In-flight Web Crypto
+cannot be cancelled. ModelTextureResourceError.code is value-free.
+
+The backend evaluator gpu.model.conversion.enabled controls caller adoption;
+disabled/rollback paths retain legacy factories. No lookup/mutation or UI
+capability is introduced. Dependencies and legacy factories are unchanged.
+See [ADR 0011](./docs/adrs/adr-0011-reloadable-texture-resource-roles.md) and
+[TDR 0006](./docs/tdrs/tdr-0006-reloadable-texture-resource-roles.md).
 
 ## Public Conversion Diagnostics
 
