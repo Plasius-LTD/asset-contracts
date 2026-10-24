@@ -1,3 +1,4 @@
+import { createGpuModelDocument, createGpuModelResourceGraph } from "@plasius/gpu-model-core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createModelResourcePromotionRecord, qualifyModelConversionDiagnostics, createAssetManifest, createAssetPromotionRecord, MODEL_RESOURCE_PROMOTION_LIMITS, type ModelResourcePromotionInput } from "../src/index.js";
 import { promotionResourcePackage } from "./fixtures/promotion-resource-package.js";
@@ -124,6 +125,19 @@ describe("model resource promotion closure", () => {
     for (const value of invalid) await expect(promote(value)).rejects.not.toThrow("private-canary");
     expect(log).not.toHaveBeenCalled();
     for (const options of [{ signal: {} }, { timeoutMs: null }, { timeoutMs: 60001 }, { timeoutMs: NaN }, { extra: true }]) await expect(createModelResourcePromotionRecord(input, options as never)).rejects.toThrow();
+  });
+
+  it.each(["obj-mtl", "fbx", "cad-bim"] as const)("rejects %s diagnostic policy for glTF source", async (standard) => {
+    const { input } = await promotionResourcePackage();
+    await expect(promote({ ...input, diagnostics: { ...input.diagnostics, report: { ...input.diagnostics.report, standard } } })).rejects.toMatchObject({ code: "evidence-mismatch" });
+  });
+
+  it("rejects unknown source-format policy even with consistent converter provenance", async () => {
+    const { input, document, graphInput } = await promotionResourcePackage();
+    const sourceFormat = "future-format";
+    const graph = createGpuModelResourceGraph(createGpuModelDocument({ ...document, provenance: { ...document.provenance, sourceFormat } }), graphInput);
+    const candidate = { ...input.candidate, processingManifest: { ...input.candidate.processingManifest, converter: { ...input.candidate.processingManifest.converter, sourceFormat } } };
+    await expect(promote({ ...input, candidate, output: { ...input.output, graph } })).rejects.toMatchObject({ code: "evidence-mismatch" });
   });
 
 });

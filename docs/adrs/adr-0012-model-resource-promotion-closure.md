@@ -90,3 +90,10 @@ ESM/CJS/types/browser consumers and released asset-pipeline orchestration.
 Release additive minor through existing source PR/exact-main push CI and
 two-phase cd.yml/main/production hosted OIDC path, then verify registry
 integrity/provenance before Done. No site deployment is authorized by Task 51.
+
+Diagnostic policy binding: canonical source formats gltf/glb select gltf-glb;
+obj/mtl select obj-mtl; fbx selects fbx; step/stp/iges/igs/ifc select cad-bim.
+Reject unknown source formats and any standard mismatch, even an empty
+otherwise successful report. This prevents applying another format's repair
+or acceptance rules. Requirements regression tests first reproduced three
+incorrect successful promotions, then reject the FBX/OBJ/CAD mismatches.

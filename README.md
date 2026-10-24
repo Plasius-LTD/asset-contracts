@@ -23,7 +23,10 @@ end in `/assetId/version/entrypoint` and satisfy existing immutable HTTPS rules.
 
 The boundary verifies all file paths/hashes/lengths/MIME, original/derived
 lineage, converter/source/output identity, re-evaluated diagnostics and runtime
-resource bindings before calling `createGpuAssetPromotionRecord`. Review must
+resource bindings before calling `createGpuAssetPromotionRecord`. Diagnostic
+policy must match the canonical source format: glTF/GLB, OBJ/MTL, FBX, or
+STEP/STP/IGES/IGS/IFC use their corresponding released evaluator standard;
+unknown formats fail closed. Review must
 pass without blocking findings; existing rights, security, fidelity, render,
 GPU envelope and human confirmation contracts remain required. Every runtime
 LOD/collision/fidelity resource and projected diagnostic resource needs one

@@ -9,6 +9,8 @@
   - (placeholder)
 
 - **Fixed**
+  - Model promotion now rejects conversion diagnostics evaluated under a
+    different canonical source-format policy, including empty success reports.
   - (placeholder)
 
 - **Security**
