@@ -11,6 +11,52 @@
 Canonical contracts for Plasius asset jobs, model resolution, immutable WebGPU
 shader assets, screenshot plans, reviews, and promotion records.
 
+## Model resource promotion closure
+
+`createModelResourcePromotionRecord(input, options?)` composes a typed
+`AssetPromotionRecord<ModelAssetManifest>`, complete source and output byte
+inventories, raw conversion diagnostics, explicit public resource bindings,
+and existing `ModelCandidate` / `ModelCandidateConfirmation` evidence. The
+output uses the existing texture/resource qualification input. Source and
+output must have distinct immutable asset/version identities. Runtime URIs
+end in `/assetId/version/entrypoint` and satisfy existing immutable HTTPS rules.
+
+The boundary verifies all file paths/hashes/lengths/MIME, original/derived
+lineage, converter/source/output identity, re-evaluated diagnostics and runtime
+resource bindings before calling `createGpuAssetPromotionRecord`. Review must
+pass without blocking findings; existing rights, security, fidelity, render,
+GPU envelope and human confirmation contracts remain required. Every runtime
+LOD/collision/fidelity resource and projected diagnostic resource needs one
+`{ resource, package: "source" | "output", filePath }` binding to verified bytes.
+
+The frozen result retains `promotion`, `source`, qualified `output`, evaluated
+`diagnostics`, sorted `resourceBindings`, `candidate`, `confirmation` and a
+separate deterministic `closureHash`. This package digest includes both complete
+inventories and lineage; it preserves existing candidate leaf/assembly hash
+semantics. No bytes or Blobs are retained. Raw provider diagnostic text is
+excluded; authored package and candidate metadata remain trusted content that
+callers must minimize before public distribution.
+
+For `outcome: "rolled-back"`, supply `rollback: { prior, current }` with results
+qualified by this same installed module instance. Requalify the exact prior
+source/output bytes and approval gates; target version/manifest/closure/runtime
+URI must match `prior`, and `rollbackOfVersion` must equal `current`'s distinct
+version for the same asset/channel. The result names both exact closure hashes.
+New independent confirmation is allowed without changing package identity.
+Forward calls reject rollback metadata. A JSON clone has no local qualification
+brand: reconstruct and qualify its original inputs before using it as history.
+
+This function performs no storage or pointer changes. Hosted services own
+signature/issuer verification, authenticated immutable history, create-only
+version admission and pointer-last concurrency control. Local qualification
+does not prove embedded model references, derivation algorithms or GPU matrix
+policy; existing downstream gates still apply. Fixed metadata/byte limits,
+abort and a default 10s deadline (configurable 1–60s) bound work. Errors contain
+fixed codes only. Backend `gpu.model.conversion.enabled` controls opt-in caller
+adoption; disabled/rollback adoption retains existing factories. Capability N/A
+for this package-only API. See [ADR0012](./docs/adrs/adr-0012-model-resource-promotion-closure.md)
+and [TDR0007](./docs/tdrs/tdr-0007-model-resource-promotion-closure.md).
+
 ## Install
 
 ```bash
@@ -93,7 +139,7 @@ exported files. This helper checks bytes and declarations, not internal format
 references, MIME sniffing, malware, rendering, storage or promotion authority.
 Keep source provenance in the canonical document and do not substitute derived
 hashes for original source hashes. Role qualification is available through the additive helper below; animation/source
-relationships and promotion closure remain separately tracked work. The result
+relationships remain adapter-owned; promotion composition uses the opt-in closure boundary above. The result
 is qualification at call time; callers must preserve the exact bytes in their
 own immutable storage boundary.
 
@@ -146,8 +192,8 @@ survive JSON reload. Original image IDs and bytes are never replaced by atlas
 hashes or upload paths. No Blob payload or renderer allocation is serialized.
 Adapters own model-internal references, derivation algorithms and image content
 inspection; qualification does not attest those operations or grant promotion.
-Task 12 animation schemas, Task 23 shader ABI and Task 51 promotion closure
-remain separate.
+Task 12 animation schemas and Task 23 shader ABI remain separate;
+promotion composition uses the opt-in closure boundary above.
 
 This is **trusted package metadata**, including names, extensions, original
 paths and authored sourceMetadata. Minimize/sanitize that data before public
