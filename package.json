@@ -103,12 +103,13 @@
   "overrides": {
     "brace-expansion": "5.0.12",
     "esbuild": "^0.28.1",
-    "fast-uri": "^3.1.6",
+    "fast-uri": "^3.1.9",
     "minimatch": "^10.2.1",
     "nanoid": "3.3.18",
     "postcss": "8.5.26"
   },
   "dependencies": {
+    "@plasius/gpu-model-core": "0.7.0",
     "@plasius/gpu-shader": "^0.1.10"
   }
 }

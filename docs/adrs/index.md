@@ -8,3 +8,4 @@
 - [ADR 0006: Additive PVOX Model-Resolution Contracts](./adr-0006-pvox-model-resolution-contracts.md)
 - [ADR 0007: Hosted OIDC Package Publication](./adr-0007-hosted-oidc-package-publication.md)
 - [ADR 0008: Package-Owned Issue Tracking](./adr-0008-package-owned-issue-tracking.md)
+- [ADR 0009: Additive Model Resource Manifest Qualification](./adr-0009-model-resource-manifest-qualification.md)
