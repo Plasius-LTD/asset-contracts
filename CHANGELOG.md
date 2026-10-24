@@ -3,6 +3,20 @@
 ## Unreleased
 
 - **Added**
+  - (placeholder)
+
+- **Changed**
+  - (placeholder)
+
+- **Fixed**
+  - (placeholder)
+
+- **Security**
+  - (placeholder)
+
+## [0.8.0] - 2026-10-24
+
+- **Added**
   - Opt-in model promotion composition binds complete source/output resource
     bytes, conversion diagnostics and existing approval gates, with exact prior
     package rollback and immutable source/derived lineage.
@@ -370,3 +384,4 @@
 [0.5.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.5.0
 [0.6.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.6.0
 [0.7.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.7.0
+[0.8.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.8.0
