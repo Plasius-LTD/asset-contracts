@@ -3,6 +3,20 @@
 ## Unreleased
 
 - **Added**
+  - (placeholder)
+
+- **Changed**
+  - (placeholder)
+
+- **Fixed**
+  - (placeholder)
+
+- **Security**
+  - (placeholder)
+
+## [0.7.0] - 2026-10-24
+
+- **Added**
   - Opt-in reloadable canonical texture/material resource qualification, exact
     storage role/MIME mapping and separate GPU upload/atlas source bindings.
     Preserves authored metadata and original resource identity through JSON reload.
@@ -352,3 +366,4 @@
 [0.4.6]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.4.6
 [0.5.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.5.0
 [0.6.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.6.0
+[0.7.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.7.0
