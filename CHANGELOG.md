@@ -3,6 +3,20 @@
 ## Unreleased
 
 - **Added**
+  - (placeholder)
+
+- **Changed**
+  - (placeholder)
+
+- **Fixed**
+  - (placeholder)
+
+- **Security**
+  - (placeholder)
+
+## [0.5.0] - 2026-10-24
+
+- **Added**
   - Opt-in canonical model resource manifest qualification with deterministic
     file order, complete inventory/entrypoint checks, exact byte/hash/MIME
     binding, bounded snapshots and cancellation/deadline handling. Existing
@@ -315,3 +329,4 @@
 [0.4.4]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.4.4
 [0.4.5]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.4.5
 [0.4.6]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.4.6
+[0.5.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.5.0
