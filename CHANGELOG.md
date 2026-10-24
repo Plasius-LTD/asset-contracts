@@ -9,6 +9,20 @@
   - (placeholder)
 
 - **Fixed**
+  - (placeholder)
+
+- **Security**
+  - (placeholder)
+
+## [0.8.1] - 2026-10-24
+
+- **Added**
+  - (placeholder)
+
+- **Changed**
+  - (placeholder)
+
+- **Fixed**
   - Model promotion now rejects conversion diagnostics evaluated under a
     different canonical source-format policy, including empty success reports.
   - (placeholder)
@@ -387,3 +401,4 @@
 [0.6.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.6.0
 [0.7.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.7.0
 [0.8.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.8.0
+[0.8.1]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.8.1
