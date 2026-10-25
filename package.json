@@ -109,7 +109,7 @@
     "postcss": "8.5.26"
   },
   "dependencies": {
-    "@plasius/gpu-model-core": "0.7.0",
-    "@plasius/gpu-shader": "^0.1.10"
+    "@plasius/gpu-model-core": "0.7.1",
+    "@plasius/gpu-shader": "^0.1.11"
   }
 }
