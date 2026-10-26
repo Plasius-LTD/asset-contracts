@@ -34,9 +34,19 @@ export class ModelResourceManifestError extends TypeError {
     this.name = "ModelResourceManifestError";
   }
 }
-function fail(code: ModelResourceManifestError["code"] = "invalid-input"): never {
-  throw new ModelResourceManifestError(code);
+// Constructors are public; only failures created here carry trusted categories.
+// WeakMap lookup never invokes caller getters or proxy prototype traps.
+const failureCodes = new WeakMap<object, ModelResourceManifestError["code"]>();
+function failure(code: ModelResourceManifestError["code"]): ModelResourceManifestError {
+  const error = new ModelResourceManifestError(code);
+  failureCodes.set(error, code);
+  return error;
 }
+/** @internal Read a private category without inspecting the supplied exception. */
+export function modelResourceManifestFailureCode(error: unknown): ModelResourceManifestError["code"] | undefined {
+  return typeof error === "object" && error !== null ? failureCodes.get(error) : undefined;
+}
+function fail(code: ModelResourceManifestError["code"] = "invalid-input"): never { throw failure(code); }
 function record(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== "object" || ![Object.prototype, null].includes(Object.getPrototypeOf(value))) fail();
   const output: Record<string, unknown> = Object.create(null) as Record<string, unknown>;
@@ -119,8 +129,7 @@ const bufferGetter = Object.getOwnPropertyDescriptor(typedArrayPrototype, "buffe
 export async function qualifyModelResourceManifest(input: ModelResourceManifestQualificationInput): Promise<AssetManifest> {
   try { return await qualify(input); }
   catch (error) {
-    if (error instanceof ModelResourceManifestError) throw error;
-    return fail();
+    return fail(modelResourceManifestFailureCode(error) ?? "invalid-input");
   }
 }
 

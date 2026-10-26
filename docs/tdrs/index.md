@@ -7,3 +7,4 @@
 - [TDR 0005: Public Conversion Diagnostics](./tdr-0005-public-conversion-diagnostics.md)
 - [TDR 0006: Reloadable Texture and Resource Qualification](./tdr-0006-reloadable-texture-resource-roles.md)
 - [TDR 0007: Model Resource Promotion Closure](./tdr-0007-model-resource-promotion-closure.md)
+- [TDR 0008: Model Error Containment](./tdr-0008-model-error-containment.md)
