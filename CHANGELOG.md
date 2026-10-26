@@ -9,6 +9,20 @@
   - (placeholder)
 
 - **Fixed**
+  - (placeholder)
+
+- **Security**
+  - (placeholder)
+
+## [0.8.3] - 2026-10-26
+
+- **Added**
+  - (placeholder)
+
+- **Changed**
+  - (placeholder)
+
+- **Fixed**
   - Contain hostile caller exceptions in model manifest, conversion diagnostics and texture qualification; reconstruct fixed errors while preserving privately recorded validation categories.
 
 - **Security**
@@ -419,3 +433,4 @@
 [0.8.0]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.8.0
 [0.8.1]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.8.1
 [0.8.2]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.8.2
+[0.8.3]: https://github.com/Plasius-LTD/asset-contracts/releases/tag/v0.8.3
