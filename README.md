@@ -136,6 +136,14 @@ keys at 128, paths at 1,024 and MIME declarations at 128. The default deadline
 is 10 seconds; callers may choose 1–60,000 ms. Cancellation and deadline checks
 surround each bounded digest; Web Crypto cannot cancel an in-flight digest.
 Failures use value-free `ModelResourceManifestError.code` values.
+The manifest, conversion-diagnostics and texture-resource qualifiers always
+construct fresh fixed errors at their rejection boundaries. Caller-thrown values,
+including proxies and public error subclasses, cannot supply messages, causes or
+extra properties. Only privately recorded internal categories survive; mutating
+a previously returned error does not change its trusted category. Public error
+constructors remain available for compatibility, but their instances are not
+internal validation evidence. This containment applies unconditionally whenever
+a caller invokes a qualifier, including during rollout rollback.
 
 Embedded resources remain inside their owning entrypoint; list only actual
 exported files. This helper checks bytes and declarations, not internal format

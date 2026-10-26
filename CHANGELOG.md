@@ -9,7 +9,7 @@
   - (placeholder)
 
 - **Fixed**
-  - (placeholder)
+  - Contain hostile caller exceptions in model manifest, conversion diagnostics and texture qualification; reconstruct fixed errors while preserving privately recorded validation categories.
 
 - **Security**
   - (placeholder)

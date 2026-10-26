@@ -54,7 +54,18 @@ export class ModelConversionDiagnosticsError extends TypeError {
     this.name = "ModelConversionDiagnosticsError";
   }
 }
-function fail(code: ModelConversionDiagnosticsError["code"] = "invalid-input"): never { throw new ModelConversionDiagnosticsError(code); }
+// Constructors are public; only failures created here carry trusted categories.
+// WeakMap lookup never invokes caller getters or proxy prototype traps.
+const failureCodes = new WeakMap<object, ModelConversionDiagnosticsError["code"]>();
+function failure(code: ModelConversionDiagnosticsError["code"]): ModelConversionDiagnosticsError {
+  const error = new ModelConversionDiagnosticsError(code);
+  failureCodes.set(error, code);
+  return error;
+}
+function failureCode(error: unknown): ModelConversionDiagnosticsError["code"] | undefined {
+  return typeof error === "object" && error !== null ? failureCodes.get(error) : undefined;
+}
+function fail(code: ModelConversionDiagnosticsError["code"] = "invalid-input"): never { throw failure(code); }
 
 function fields(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== "object" || ![Object.prototype, null].includes(Object.getPrototypeOf(value))) fail();
@@ -149,8 +160,8 @@ export async function qualifyModelConversionDiagnostics(input: unknown, options:
     }
     check();
     const interrupted = new Promise<never>((_resolve, reject) => {
-      timer = setTimeout(() => reject(new ModelConversionDiagnosticsError("deadline-exceeded")), Math.max(1, timeoutMs - (performance.now() - start)));
-      onAbort = () => reject(new ModelConversionDiagnosticsError("aborted"));
+      timer = setTimeout(() => reject(failure("deadline-exceeded")), Math.max(1, timeoutMs - (performance.now() - start)));
+      onAbort = () => reject(failure("aborted"));
       if (signal) AbortSignal.prototype.addEventListener.call(signal, "abort", onAbort, { once: true });
     });
     const core = await Promise.race([import("@plasius/gpu-model-core"), interrupted]);
@@ -176,8 +187,7 @@ export async function qualifyModelConversionDiagnostics(input: unknown, options:
     return Object.freeze({ contractVersion: 1, status, technicalAccepted, standard: report.standard, mode: report.mode, source,
       diagnostics: Object.freeze(diagnostics), converter: Object.freeze({ diagnostics: Object.freeze(diagnostics.filter((item) => item.effect === undefined).map(legacy)), losses: Object.freeze(losses) }) });
   } catch (error) {
-    if (error instanceof ModelConversionDiagnosticsError) throw error;
-    return fail();
+    return fail(failureCode(error) ?? "invalid-input");
   } finally {
     if (timer !== undefined) clearTimeout(timer);
     if (signal && onAbort) AbortSignal.prototype.removeEventListener.call(signal, "abort", onAbort);

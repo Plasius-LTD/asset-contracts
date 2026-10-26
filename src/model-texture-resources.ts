@@ -3,7 +3,7 @@ import type {
   GpuModelMaterial, GpuModelTexture, GpuModelProvenance, GpuModelResourceGraph,
   GpuModelResourceLocation, GpuModelTextureEmbeddingPolicy,
 } from "@plasius/gpu-model-core";
-import { qualifyModelResourceManifest, ModelResourceManifestError, type ModelResourceManifestQualificationInput } from "./model-resource-manifest.js";
+import { qualifyModelResourceManifest, modelResourceManifestFailureCode, type ModelResourceManifestQualificationInput } from "./model-resource-manifest.js";
 import type { AssetManifest, AssetFileDescriptor } from "./index.js";
 
 /** Hard ceilings for the additive package role boundary; callers cannot raise them. */
@@ -49,7 +49,18 @@ export class ModelTextureResourceError extends TypeError {
     super(`Invalid model texture resources: ${code}`); this.name = "ModelTextureResourceError";
   }
 }
-function fail(code: ModelTextureResourceError["code"] = "invalid-input"): never { throw new ModelTextureResourceError(code); }
+// Constructors are public; only failures created here carry trusted categories.
+// WeakMap lookup never invokes caller getters or proxy prototype traps.
+const failureCodes = new WeakMap<object, ModelTextureResourceError["code"]>();
+function failure(code: ModelTextureResourceError["code"]): ModelTextureResourceError {
+  const error = new ModelTextureResourceError(code);
+  failureCodes.set(error, code);
+  return error;
+}
+function failureCode(error: unknown): ModelTextureResourceError["code"] | undefined {
+  return typeof error === "object" && error !== null ? failureCodes.get(error) : undefined;
+}
+function fail(code: ModelTextureResourceError["code"] = "invalid-input"): never { throw failure(code); }
 function fields(value: unknown, allowed?: readonly string[]): Record<string, unknown> {
   if (!value || typeof value !== "object" || ![Object.prototype, null].includes(Object.getPrototypeOf(value))) fail();
   const keys = Reflect.ownKeys(value);
@@ -148,8 +159,8 @@ export async function qualifyModelTextureResources(input: ModelTextureResourceQu
     });
     check();
     const interrupted = new Promise<never>((_resolve, reject) => {
-      timer = setTimeout(() => reject(new ModelTextureResourceError("deadline-exceeded")), Math.max(1, timeoutMs - (performance.now() - started)));
-      onAbort = () => reject(new ModelTextureResourceError("aborted"));
+      timer = setTimeout(() => reject(failure("deadline-exceeded")), Math.max(1, timeoutMs - (performance.now() - started)));
+      onAbort = () => reject(failure("aborted"));
       if (signal) AbortSignal.prototype.addEventListener.call(signal, "abort", onAbort, { once: true });
     });
     // The existing qualifier snapshots metadata AND byte payloads synchronously
@@ -200,8 +211,10 @@ export async function qualifyModelTextureResources(input: ModelTextureResourceQu
       materials: Object.freeze(materials), textures: Object.freeze(textures),
       derived: Object.freeze(derived.sort((a, b) => compare(a.filePath, b.filePath))) });
   } catch (error) {
-    if (error instanceof ModelTextureResourceError) throw error;
-    if (error instanceof ModelResourceManifestError) return fail(error.code === "aborted" || error.code === "deadline-exceeded" || error.code === "limit-exceeded" ? error.code : "package-mismatch");
+    const ownCode = failureCode(error);
+    if (ownCode !== undefined) return fail(ownCode);
+    const manifestCode = modelResourceManifestFailureCode(error);
+    if (manifestCode !== undefined) return fail(manifestCode === "aborted" || manifestCode === "deadline-exceeded" || manifestCode === "limit-exceeded" ? manifestCode : "package-mismatch");
     return fail();
   } finally {
     if (timer !== undefined) clearTimeout(timer);

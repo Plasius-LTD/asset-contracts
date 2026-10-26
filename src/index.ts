@@ -38,7 +38,12 @@ export * from "./model-resolution.js";
 export * from "./pvox-hash-preimage.js";
 export * from "./pvox-model-resolution.js";
 export * from "./pvox-model-resolution-schema.js";
-export * from "./model-resource-manifest.js";
+export {
+  MODEL_RESOURCE_MANIFEST_LIMITS, ModelResourceManifestError, qualifyModelResourceManifest,
+} from "./model-resource-manifest.js";
+export type {
+  ModelResourceFileInput, ModelResourceManifestQualificationInput,
+} from "./model-resource-manifest.js";
 export * from "./model-texture-resources.js";
 export * from "./model-resource-promotion.js";
 export * from "./model-conversion-diagnostics.js";
